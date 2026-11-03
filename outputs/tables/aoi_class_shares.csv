@@ -1,0 +1,29 @@
+aoi,code,class,share_pct
+kolomna,10,Tree cover,47.5016
+kolomna,30,Grassland,23.492
+kolomna,40,Cropland,24.416
+kolomna,50,Built-up,2.556
+kolomna,60,Bare/sparse,0.1736
+kolomna,80,Water,1.7368
+kolomna,90,Herb. wetland,0.124
+serpukhov,10,Tree cover,65.6552
+serpukhov,30,Grassland,20.3064
+serpukhov,40,Cropland,10.5512
+serpukhov,50,Built-up,2.4092
+serpukhov,60,Bare/sparse,0.0468
+serpukhov,80,Water,1.0072
+serpukhov,90,Herb. wetland,0.024
+new_moscow,10,Tree cover,60.85
+new_moscow,30,Grassland,11.2956
+new_moscow,40,Cropland,9.498
+new_moscow,50,Built-up,16.8836
+new_moscow,60,Bare/sparse,0.576
+new_moscow,80,Water,0.8868
+new_moscow,90,Herb. wetland,0.01
+ruza,10,Tree cover,62.9552
+ruza,30,Grassland,19.5076
+ruza,40,Cropland,12.4584
+ruza,50,Built-up,1.26
+ruza,60,Bare/sparse,0.2484
+ruza,80,Water,3.4076
+ruza,90,Herb. wetland,0.1628

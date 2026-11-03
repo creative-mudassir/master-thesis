@@ -74,3 +74,11 @@ measured results of the study (RQ6), not just notes.
 - Workaround / fix: rerun. For long cube builds: watch for silent stalls; D10 retries cover failed reads,
   but not reads that hang.
 - Documentation used: SETUP_GUIDE step 3 — good.
+- Later (Step 2, `02_aoi_report.py` + `02b_snow_report.py`): the Planetary Computer connection was reset
+  twice: `APIError: HTTPSConnectionPool(host='planetarycomputer.microsoft.com', port=443): Max retries exceeded
+  with url: /api/stac/v1 (Caused by ProtocolError('Connection aborted.', ConnectionResetError(10054, 'An existing
+  connection was forcibly closed by the remote host')))`. A simple retry worked both times.
+- Also: the first `02_aoi_report.py` run crashed without a Python traceback (exit 127) during the WorldCover load,
+  when the env's python.exe was started directly without `conda activate edc` (GDAL_DATA not set, Git's
+  mingw64 DLLs first on PATH). Fix: always run scripts in the activated env (`conda activate edc` or
+  `conda run -n edc python ...`); the same script then ran fine.
