@@ -26,7 +26,9 @@ import xarray as xr  # noqa: E402
 
 from edc import config  # noqa: E402
 from edc.dataset import split_mask  # noqa: E402
-from edc.metrics import agreement, confusion, scores  # noqa: E402
+from edc.metrics import agreement, confusion, main_classes, scores  # noqa: E402
+
+MAIN_MIN_SHARE = 0.01  # D13: "main" classes have >= 1% of the AOI's labelled 10 m pixels
 
 
 def main():
@@ -44,6 +46,9 @@ def main():
     H, W = lab.shape
     # same buffer as for training data (workflow.yaml split.margin_px, decision D9)
     test = split_mask(H, W, split, "test", wf["split"]["margin_px"])
+    # main classes from the WHOLE AOI's labels (not only the test blocks), so the list is the same for every map
+    main = main_classes(lab, k, MAIN_MIN_SHARE)
+    print("main classes (>= 1% of labelled pixels):", [names[c] for c in main])
 
     maps = {}
     for tif in sorted((config.ROOT / "outputs" / "maps").glob(f"*/{tag}_*.tif")):
@@ -53,11 +58,13 @@ def main():
 
     rows = []
     for (system, model), m in maps.items():
-        s = scores(confusion(lab[test], m[test], k), names)
-        rows.append({"system": system, "model": model, **s})
+        s = scores(confusion(lab[test], m[test], k), names, main=main)
+        rows.append({"system": system, "model": model, **s,
+                     "main_classes": ";".join(names[c] for c in main)})
     acc = pd.DataFrame(rows)
     acc.to_csv(config.tables_dir() / f"accuracy_{tag}.csv", index=False)
-    print(acc[["system", "model", "overall_accuracy", "kappa", "macro_f1"]].to_string(index=False))
+    if len(acc):
+        print(acc[["system", "model", "overall_accuracy", "kappa", "macro_f1", "macro_f1_main"]].to_string(index=False))
 
     rows = []
     models = sorted({m for _, m in maps})
