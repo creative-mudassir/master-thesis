@@ -27,7 +27,8 @@ cloud_mask:
   keep_snow: true               # SCL 11 (snow) is KEPT (decision, see docs/decisions.md)
 
 scene_filter:
-  max_scene_cloud_cover: 60     # % (eo:cloud_cover), pre-filter before pixel masking
+  max_scene_cloud_cover: 80     # % scene cloud cover, pre-filter before pixel masking (D14; was 60)
+                                # PC: eo:cloud_cover, GEE: CLOUDY_PIXEL_PERCENTAGE, openEO: eo:cloud_cover
 
 composite:
   method: median                # per month, per pixel, over valid observations

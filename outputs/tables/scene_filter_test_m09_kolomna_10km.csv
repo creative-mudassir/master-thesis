@@ -1,0 +1,4 @@
+month,max_scene_cloud_cover,n_items,n_dates,scene_cloud_pct,no_valid_pct,water_empty_pct,bright_b02_gt2000_nonbuilt_pct,median_valid_count,seconds_download_composite_write
+9,60,1,1,11,8.39,46.36,0.8,1.0,5.327
+9,80,3,3,72;78;11,5.27,14.82,0.87,1.0,5.716
+9,100,12,12,72;81;88;78;11;100;81;99;99;99;94;100,3.78,11.15,0.87,2.0,59.867
