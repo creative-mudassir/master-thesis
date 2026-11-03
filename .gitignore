@@ -1,0 +1,14 @@
+# big data and model files stay OUT of git (they are reproducible from the scripts)
+data/
+models/*/*.pt
+models/*/*.onnx
+models/*/*.joblib
+outputs/maps/
+*.zarr/
+*.tif
+*.npy
+__pycache__/
+.ipynb_checkpoints/
+.env
+*.log
+# keep: outputs/tables, outputs/figures, outputs/benchmarks, models/*/*_meta.json, *_history.csv

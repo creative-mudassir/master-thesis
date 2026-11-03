@@ -1,0 +1,33 @@
+name: edc
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - xarray
+  - dask
+  - zarr
+  - rasterio
+  - rioxarray
+  - pyproj
+  - shapely
+  - odc-stac
+  - odc-geo
+  - pystac-client
+  - planetary-computer
+  - scikit-learn
+  - joblib
+  - matplotlib
+  - pyyaml
+  - psutil
+  - tqdm
+  - jupyterlab
+  - pip
+  - pip:
+      - earthengine-api
+      - openeo
+      - onnx
+      - onnxruntime
+# PyTorch is installed separately (see docs/SETUP_GUIDE.md, step 2),
+# because the right command depends on whether you have an NVIDIA GPU.
