@@ -26,6 +26,31 @@ def search_s2(bbox_ll, year, months, max_cloud):
     return [it for it in items if it.datetime.month in months]
 
 
+def resign(items):
+    """Fresh copies of `items` with NEW download tokens (PC SAS tokens expire after ~45 min).
+
+    planetary_computer.sign() skips URLs that already carry a token, so the old token is
+    removed from every asset URL first, and the token cache is emptied so a new one is fetched.
+    """
+    import planetary_computer
+    import planetary_computer.sas
+    planetary_computer.sas.TOKEN_CACHE.clear()
+    out = []
+    for it in items:
+        c = it.clone()
+        for asset in c.assets.values():
+            asset.href = asset.href.split("?")[0]
+        out.append(planetary_computer.sign(c, copy=False))
+    return out
+
+
+def items_over(items, bbox_ll):
+    """Only the items whose footprint touches bbox_ll (west, south, east, north in degrees)."""
+    from shapely.geometry import box, shape
+    b = box(*bbox_ll)
+    return [it for it in items if shape(it.geometry).intersects(b)]
+
+
 def items_by_month(items):
     out = defaultdict(list)
     for it in items:

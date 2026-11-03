@@ -82,3 +82,43 @@ measured results of the study (RQ6), not just notes.
   when the env's python.exe was started directly without `conda activate edc` (GDAL_DATA not set, Git's
   mingw64 DLLs first on PATH). Fix: always run scripts in the activated env (`conda activate edc` or
   `conda run -n edc python ...`); the same script then ran fine.
+
+### 2026-11-03 — system: cloudnative (Step 3: 10 km cube, scene-filter test, robust cube build)
+- Hours spent today: TODO (fill in actual hours)
+- What I did: built the 10 km cube (first with the 60% scene filter); tested the scene filter on September
+  (60/80/100) and on all 7 months (60/80) with `scripts/03b_test_scene_filter.py` → D14 (filter 60 → 80).
+  Rewrote `scripts/03_build_cube.py` to be robust (see "Workaround / fix"), rebuilt the 10 km cube with
+  the 80% filter, and checked with `scripts/03c_check_parts.py` that building in parts gives the same cube.
+- Problems / errors (exact message):
+  1. **Process hang after the work was done:** the first `03_build_cube.py --size-km 10` printed `done -> ...`
+     but the python process never exited (idle, 22 open sockets, PID 24156); it had to be killed with
+     `taskkill /F`, so that shell reported exit code 1 although all months were written. Probably GDAL/dask
+     network threads that keep the interpreter alive.
+  2. **Network failures while reading COGs** (scene-filter test, 3 of 5 September runs failed; logged as
+     `error` rows in `outputs/benchmarks/scene_filter_test.csv`):
+     `RasterioIOError: CURL error: schannel: failed to receive handshake, SSL/TLS connection failed` and
+     `RasterioIOError: Read failed. See previous exception for details.` (cut-off reads, "got 0 bytes").
+     GDAL's own retries (`GDAL_HTTP_MAX_RETRY=10`) do not cover these errors. Same build took 5–47 s between tries.
+  3. **Token expiry after a silent stall** (rebuild with the 80% filter, run 20261103-140547-6a0d83):
+     the first attempt for September stalled for **13159 s (3.7 h)** without any error, and then failed with
+     `RasterioIOError: HTTP response code: 403`. The SAS token in the URLs had `se=2026-11-03T09:54:51Z`;
+     the attempt started at 09:05Z (14:05 local) and ended at 12:49Z (17:49 local), about 3 h after the token expired. Retry 2 (new tokens) took 12.4 s.
+     Earlier the same day (07:22Z) a token check showed tokens last about 45 min, so a 50 km month that
+     takes longer than that would fail the same way even without a stall.
+     Note: the 3.7 h stall is NOT covered by the retries: a read that hangs never raises an error.
+     Not fixed yet (would need a time limit per part).
+  4. Months 6–8 took 49–89 s per month in this rebuild vs 9–16 s in the scene-filter test an hour earlier
+     (same scenes, same code) → timing depends strongly on the network at the time of the run.
+- Workaround / fix (`scripts/03_build_cube.py`, `src/edc/cloudnative.py`):
+  1. forced exit `os._exit(code)` at the very end, only after all months and qa.json are written.
+  2. each month is built in spatial parts (default 10 × 10 km); a failed part is retried up to 5 times,
+     waiting 30, 60, 90 ... s; finished parts are listed in `mXX.parts.json`, so a rerun (without
+     `--overwrite`) continues where it stopped; a month becomes `mXX.zarr` only when all parts are written.
+  3. new download tokens before every part attempt (`resign()`: removes the old token from the URLs and
+     empties the planetary_computer token cache, because `planetary_computer.sign()` skips URLs that are
+     already signed). The 403 above was fixed exactly this way (attempt 2 worked).
+  Check: real cube (1 part/month) and a test cube with 2.5 km parts (16 parts/month) are **identical, value
+  for value**, to the one-go builds of the D14 test, all 7 months, all 11 variables
+  (`outputs/tables/parts_check_kolomna_10km.csv`).
+- Documentation used: Planetary Computer docs on SAS tokens — partial (no hint that `sign()` skips already
+  signed URLs; found in the source of `planetary_computer/sas.py`).

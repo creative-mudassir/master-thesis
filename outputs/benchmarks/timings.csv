@@ -1,0 +1,18 @@
+run_id,timestamp,system,aoi,area_km,n_months,stage,seconds,peak_rss_mb,status,host,note
+20261103-104716-92e3bb,2026-11-03T10:47:41,cloudnative,kolomna,10.0,7,W1_discovery,24.605,191.5,ok,DESKTOP-I00GJQP,39 items
+20261103-104716-92e3bb,2026-11-03T10:48:42,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m04,60.681,1117.2,ok,DESKTOP-I00GJQP,"5 items, 5 dates"
+20261103-104716-92e3bb,2026-11-03T10:50:13,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m05,91.719,1924.8,ok,DESKTOP-I00GJQP,"8 items, 8 dates"
+20261103-104716-92e3bb,2026-11-03T10:51:43,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m06,89.892,1768.4,ok,DESKTOP-I00GJQP,"7 items, 7 dates"
+20261103-104716-92e3bb,2026-11-03T10:52:46,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m07,62.767,2135.7,ok,DESKTOP-I00GJQP,"9 items, 9 dates"
+20261103-104716-92e3bb,2026-11-03T10:53:34,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m08,48.313,1429.6,ok,DESKTOP-I00GJQP,"6 items, 6 dates"
+20261103-104716-92e3bb,2026-11-03T10:54:17,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m09,42.397,778.7,ok,DESKTOP-I00GJQP,"1 items, 1 dates"
+20261103-104716-92e3bb,2026-11-03T10:54:22,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m10,4.833,504.3,ok,DESKTOP-I00GJQP,"3 items, 3 dates"
+20261103-140547-6a0d83,2026-11-03T14:05:53,cloudnative,kolomna,10.0,7,W1_discovery,6.135,198.2,ok,DESKTOP-I00GJQP,48 items
+20261103-140547-6a0d83,2026-11-03T14:06:10,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m04_p00,13.266,881.8,ok,DESKTOP-I00GJQP,"7 items, 7 dates, attempt 1"
+20261103-140547-6a0d83,2026-11-03T14:06:24,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m05_p00,14.149,926.2,ok,DESKTOP-I00GJQP,"9 items, 9 dates, attempt 1"
+20261103-140547-6a0d83,2026-11-03T14:07:13,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m06_p00,48.792,1641.0,ok,DESKTOP-I00GJQP,"8 items, 8 dates, attempt 1"
+20261103-140547-6a0d83,2026-11-03T14:08:21,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m07_p00,66.999,2614.2,ok,DESKTOP-I00GJQP,"11 items, 11 dates, attempt 1"
+20261103-140547-6a0d83,2026-11-03T14:09:50,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m08_p00,88.93,1791.6,ok,DESKTOP-I00GJQP,"7 items, 7 dates, attempt 1"
+20261103-140547-6a0d83,2026-11-03T17:49:10,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m09_p00,13159.184,280.8,error: RasterioIOError,DESKTOP-I00GJQP,
+20261103-140547-6a0d83,2026-11-03T17:49:52,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m09_p00,12.388,496.5,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 2"
+20261103-140547-6a0d83,2026-11-03T17:50:00,cloudnative,kolomna,10.0,7,W2W3_cube_composite_m10_p00,6.989,451.7,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1"
