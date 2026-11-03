@@ -14,8 +14,63 @@ measured results of the study (RQ6), not just notes.
 ---
 
 ### 2026-11-03 — system: setup
-- Hours spent today:
-- What I did:
-- Problems / errors:
+- Hours spent today: TODO (fill in actual hours)
+- What I did: git repo created and pushed (github.com/creative-mudassir/master-thesis); conda env `edc`
+  created from environment.yml + `pip install torch` (2.15.0 CPU); import check `all ok`;
+  lock files environment.lock.yml + requirements.lock.txt committed.
+- Problems / errors (exact message):
+  1. `conda env create -f environment.yml` → `CondaToSNonInteractiveError: Terms of Service have not been
+     accepted for the following channels` (repo.anaconda.com/pkgs/main, /r, /msys2), although
+     environment.yml only lists conda-forge (Miniconda adds `defaults`).
+  2. `conda env create ... --override-channels -c conda-forge` → `error: unrecognized arguments` (conda 25.11.1).
+  3. `conda env export -n edc --file environment.lock.yml` → `EnvironmentExporterNotDetected: No environment
+     exporter plugin found for filename 'environment.lock.yml'`.
+  4. `pip freeze` wrote 185 of 221 lines as `pkg @ file:///home/conda/feedstock_root/...` (not reinstallable).
+  5. pip downgraded pandas 3.1.0 (conda) → 2.3.3 while installing the pip packages (openeo/earthengine-api).
+  6. `git push` once failed: `schannel: failed to receive handshake, SSL/TLS connection failed` (network).
 - Workaround / fix:
-- Documentation used:
+  1. `CONDA_CHANNELS=conda-forge CONDA_DEFAULT_CHANNELS=https://conda.anaconda.org/conda-forge conda env create -f environment.yml -y`
+     (no ToS accepted, conda config unchanged). 3. `conda export -n edc --format=environment-yaml --file environment.lock.yml`.
+  4. `pip list --format=freeze > requirements.lock.txt`. 5. accepted, `pip check` clean. 6. simple retry worked.
+- Documentation used: SETUP_GUIDE step 2 — partial (does not mention the Anaconda ToS prompt or the
+  conda 25 export change); conda error messages themselves were good.
+
+### 2026-11-03 — system: gee
+- Hours spent today: TODO (fill in actual hours, incl. registration)
+- What I did: registered Earth Engine for **noncommercial use (Community Tier)**, Cloud project `edc-thesis`,
+  eligibility valid until **2028-05-03**. Ran `python scripts/01_check_access.py --only gee --gee-project edc-thesis`
+  → `gee: OK`, 12 images in COPERNICUS/S2_SR_HARMONIZED for July 2021 (10 km AOI), 34.3 s incl. first login
+  (outputs/tables/access_check.csv).
+- Problems / errors: none. First run needed a browser OAuth login (`ee.Authenticate()`, redirect to
+  localhost:8085, scopes: earthengine, cloud-platform, drive, devstorage); token saved to
+  ~/.config/earthengine/credentials.
+- Workaround / fix: —
+- Documentation used: SETUP_GUIDE step 4 — good. TODO: note the Community Tier compute quota from the
+  Cloud console (needed for the cost/quota table).
+
+### 2026-11-03 — system: openeo
+- Hours spent today: TODO (fill in actual hours, incl. CDSE registration)
+- What I did: `python scripts/01_check_access.py --only openeo` → first login via OIDC device code flow
+  (link + user code, confirmed in browser, ~1 min); refresh token saved, later runs log in silently.
+  After the fix: `openeo: OK`, SENTINEL2_L2A has 21 bands, all 10 workflow bands + SCL present (4.5 s).
+- Problems / errors (exact message): first run → `TypeError: string indices must be integers, not 'str'`
+  in our script (scripts/01_check_access.py): it expected band entries as dicts with "name", but CDSE
+  returns `cube:dimensions.bands.values` as plain strings (as the openEO spec defines). Not a platform problem.
+- Workaround / fix: script now reads the band names directly and checks that B02..B12 + SCL exist.
+- Documentation used: SETUP_GUIDE step 5 — good. TODO: note the free-tier credits from the CDSE dashboard /
+  openEO web editor (needed for the cost/quota table).
+
+### 2026-11-03 — system: cloudnative (Planetary Computer)
+- Hours spent today: TODO (no account needed, so only the check itself)
+- What I did: `python scripts/01_check_access.py --only pc` → `pc: OK`, 12 S2 items in July 2021,
+  256x256 B04 window read (mean DN 6838), 1 WorldCover item, 6.9 s.
+- Problems / errors: first attempt hung for > 5 min without any output or error (stopped by hand).
+  The two stuck python.exe processes could not be killed (`taskkill`: "There is no running instance of
+  the task") → most likely stuck in a network call. A step-by-step test right after took 10 s
+  (STAC root 200, search 8 s, signed COG HEAD 200, window read OK), and the rerun passed.
+  Same session also had one `git push` TLS handshake failure → probably an unstable network, not PC.
+  Harmless warning: `Cannot find gdalvrt.xsd (GDAL_DATA is not defined)` when the env's python is run
+  without `conda activate edc`.
+- Workaround / fix: rerun. For long cube builds: watch for silent stalls; D10 retries cover failed reads,
+  but not reads that hang.
+- Documentation used: SETUP_GUIDE step 3 — good.

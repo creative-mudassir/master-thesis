@@ -60,9 +60,13 @@ def check_openeo(bbox):
         who = acc.get("name") or acc.get("user_id", "")
     except Exception:
         who = "?"
-    bands = [b["name"] for b in meta.get("cube:dimensions", {}).get("bands", {}).get("values", [])] or \
-            meta.get("summaries", {}).get("eo:bands", [])
-    return f"logged in as {who}; SENTINEL2_L2A available ({len(bands)} bands listed)"
+    # openEO lists the band names as plain strings, e.g. ["B01", "B02", ..., "SCL"]
+    bands = meta.get("cube:dimensions", {}).get("bands", {}).get("values", [])
+    wf = config.workflow()
+    missing = [b for b in wf["bands"] + [wf["scl_band"]] if b not in bands]
+    if missing:
+        raise RuntimeError(f"SENTINEL2_L2A is missing bands {missing}")
+    return f"logged in as {who}; SENTINEL2_L2A available ({len(bands)} bands, all 10 + SCL present)"
 
 
 def main():
