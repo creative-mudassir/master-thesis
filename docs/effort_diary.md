@@ -99,16 +99,18 @@ measured results of the study (RQ6), not just notes.
      `RasterioIOError: CURL error: schannel: failed to receive handshake, SSL/TLS connection failed` and
      `RasterioIOError: Read failed. See previous exception for details.` (cut-off reads, "got 0 bytes").
      GDAL's own retries (`GDAL_HTTP_MAX_RETRY=10`) do not cover these errors. Same build took 5–47 s between tries.
-  3. **Token expiry after a silent stall** (rebuild with the 80% filter, run 20261103-140547-6a0d83):
-     the first attempt for September stalled for **13159 s (3.7 h)** without any error, and then failed with
+  3. **Laptop sleep + token expiry** (rebuild with the 80% filter, run 20261103-140547-6a0d83):
+     the first attempt for September took **13159 s (3.7 h)** and then failed with
      `RasterioIOError: HTTP response code: 403`. The SAS token in the URLs had `se=2026-11-03T09:54:51Z`;
-     the attempt started at 09:05Z (14:05 local) and ended at 12:49Z (17:49 local), about 3 h after the token expired. Retry 2 (new tokens) took 12.4 s.
-     Earlier the same day (07:22Z) a token check showed tokens last about 45 min, so a 50 km month that
-     takes longer than that would fail the same way even without a stall.
-     Note: the 3.7 h stall is NOT covered by the retries: a read that hangs never raises an error.
-     Not fixed yet (would need a time limit per part).
+     the attempt started at 09:05Z (14:05 local) and ended at 12:49Z (17:49 local). Retry 2 (new tokens) took 12.4 s.
+     **Cause (found later, Windows System event log, Kernel-Power 506/507): the laptop was in Modern Standby
+     from 14:10 to 17:49 local** ("Reason: Idle Timeout") — not a network stall. During sleep everything pauses;
+     the token expired; the first read after waking got 403. Same again in the resume test: lid closed
+     19:46 → 21:37, one part took 6701 s and failed with 403; the 20-min watchdog could not fire because its
+     clock is paused during sleep too.
   4. Months 6–8 took 49–89 s per month in this rebuild vs 9–16 s in the scene-filter test an hour earlier
-     (same scenes, same code) → timing depends strongly on the network at the time of the run.
+     (same scenes, same code) → timing depends strongly on the network at the time of the run
+     (month 8 ended at about 14:10, when the idle sleep started, so it may be affected by that too).
 - Workaround / fix (`scripts/03_build_cube.py`, `src/edc/cloudnative.py`):
   1. forced exit `os._exit(code)` at the very end, only after all months and qa.json are written.
   2. each month is built in spatial parts (default 10 × 10 km); a failed part is retried up to 5 times,
@@ -122,3 +124,33 @@ measured results of the study (RQ6), not just notes.
   (`outputs/tables/parts_check_kolomna_10km.csv`).
 - Documentation used: Planetary Computer docs on SAS tokens — partial (no hint that `sign()` skips already
   signed URLs; found in the source of `planetary_computer/sas.py`).
+
+### 2026-11-04 — system: cloudnative (safety nets for the 50 km run, tested at 10 km)
+- Hours spent today: TODO
+- What I did: added (1) GDAL stall limits, (2) a per-part watchdog, (3) retries for the STAC search,
+  (4) "keep awake" while a run is active; tested resume and stall at 10 km.
+- Tests (all passed; logs of the test runs in `outputs/benchmarks/parts_test.csv`):
+  1. **GDAL stall limit** (`tests/test_stall_gdal.py`): a local fake COG server sends headers and then no data.
+     With `GDAL_HTTP_LOW_SPEED_TIME=60, GDAL_HTTP_LOW_SPEED_LIMIT=1, GDAL_HTTP_TIMEOUT=300` (GDAL 3.12.3)
+     the read became an error after 60.7 s (`RasterioIOError ... not recognized as being in a supported file
+     format`), with only 1 data request (GDAL did not retry the aborted request).
+  2. **Watchdog** (`03_build_cube.py --part-timeout-min 1 --test-stall 10:1`, 4 parts of 5 km): the frozen part
+     was killed after the limit (`TimeoutError: part did not finish within 60 s; child process killed`) and
+     the retry worked (17 s). A second, real part was also slower than 60 s on this network and was killed
+     and retried → 1 min is only a test value; the real limit is 20 min (a 10 km part took 7–89 s so far).
+  3. **Resume** (`tests/run_resume_test.py`): the whole process tree was killed after 6 of 16 parts of September;
+     `m09.zarr` did not exist (only `.tmp`), the rerun printed `resuming, 6/16 parts already written`, built only
+     the 10 missing parts, and the month was identical (0 different values) to the one-go build.
+     The first two resume attempts failed for other reasons: (a) the one-month quick look crashed (bug in
+     `quicklook()` for 1 month, fixed with `squeeze=False`); (b) the STAC search failed with
+     `ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host')` → the
+     search (W1) now has the same retries as the parts.
+  4. After all tests: 7 months × 2 cubes still identical to the one-go builds (`parts_check_kolomna_10km.csv`).
+- Workaround / fix: the watchdog runs every part in its own child process (`multiprocessing`, "spawn") and
+  kills it after 20 min (`Process.kill()` = TerminateProcess on Windows). A thread could not be used:
+  a thread stuck inside a GDAL download cannot be stopped in Python. Cost: starting the child takes a few
+  seconds per part; the timing row includes it, the note column has the child's own time ("child … s").
+  Sleep: `keep_awake()` (SetThreadExecutionState) stops the IDLE sleep while 03/04 run; closing the lid
+  still sleeps → for the overnight run: laptop on power, lid open.
+- Documentation used: Python `multiprocessing` docs (spawn on Windows) — good; GDAL config options
+  (GDAL_HTTP_LOW_SPEED_TIME) — good.

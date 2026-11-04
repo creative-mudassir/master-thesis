@@ -112,3 +112,56 @@ run_id,timestamp,system,aoi,area_km,n_months,stage,seconds,peak_rss_mb,status,ho
 20261103-175025-608d4d,2026-11-03T18:02:10,cloudnative_partstest,kolomna,10.0,7,W2W3_cube_composite_m10_p13,3.155,341.6,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1"
 20261103-175025-608d4d,2026-11-03T18:02:12,cloudnative_partstest,kolomna,10.0,7,W2W3_cube_composite_m10_p14,2.52,342.7,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1"
 20261103-175025-608d4d,2026-11-03T18:02:15,cloudnative_partstest,kolomna,10.0,7,W2W3_cube_composite_m10_p15,2.734,341.1,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1"
+20261103-185357-542151,2026-11-03T18:54:06,cloudnative_partstest,kolomna,10.0,1,W1_discovery,8.218,198.2,ok,DESKTOP-I00GJQP,3 items
+20261103-185357-542151,2026-11-03T18:59:26,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p00,318.051,499.5,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 12.177 s"
+20261103-185357-542151,2026-11-03T18:59:44,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p01,17.611,500.9,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 11.725 s"
+20261103-185357-542151,2026-11-03T19:00:01,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p02,17.295,498.5,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 11.343 s"
+20261103-185357-542151,2026-11-03T19:39:48,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p03,2386.986,511.6,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 29.921 s"
+20261103-185357-542151,2026-11-03T19:40:32,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p04,44.04,495.8,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 34.139 s"
+20261103-185357-542151,2026-11-03T19:41:01,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p05,29.085,499.6,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 22.35 s"
+20261103-194107-ef4468,2026-11-03T19:41:14,cloudnative_partstest,kolomna,10.0,1,W1_discovery,7.317,198.4,ok,DESKTOP-I00GJQP,3 items
+20261103-194107-ef4468,2026-11-03T19:41:39,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p06,25.11,466.3,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 19.198 s"
+20261103-194107-ef4468,2026-11-03T19:43:39,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p07,119.005,467.0,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 113.187 s"
+20261103-194107-ef4468,2026-11-03T19:43:54,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p08,15.159,468.5,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 10.744 s"
+20261103-194107-ef4468,2026-11-03T19:44:12,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p09,18.722,471.6,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 14.249 s"
+20261103-194107-ef4468,2026-11-03T19:44:55,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p10,42.849,466.9,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 37.711 s"
+20261103-194107-ef4468,2026-11-03T19:45:24,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p11,28.984,480.3,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 24.126 s"
+20261103-194107-ef4468,2026-11-03T19:45:40,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p12,16.158,465.7,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 11.386 s"
+20261103-194107-ef4468,2026-11-03T21:37:22,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p13,6701.462,476.2,error: RuntimeError,DESKTOP-I00GJQP,
+20261103-194107-ef4468,2026-11-03T21:38:24,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p13,32.124,470.9,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 2, child 20.09 s"
+20261103-194107-ef4468,2026-11-03T21:38:40,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p14,15.922,466.1,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 9.785 s"
+20261103-194107-ef4468,2026-11-03T21:38:54,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p15,13.793,474.2,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 8.965 s"
+20261103-213908-501aca,2026-11-03T21:39:13,cloudnative_partstest,kolomna,10.0,1,W1_discovery,5.604,198.0,ok,DESKTOP-I00GJQP,3 items
+20261103-213908-501aca,2026-11-03T21:39:29,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p00,12.692,524.9,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 8.437 s"
+20261103-213908-501aca,2026-11-03T21:40:38,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p01,68.819,388.5,error: TimeoutError,DESKTOP-I00GJQP,
+20261103-213908-501aca,2026-11-03T21:41:36,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p01,28.577,523.3,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 2, child 19.721 s"
+20261103-213908-501aca,2026-11-03T21:41:51,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p02,14.393,528.5,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 9.86 s"
+20261103-213908-501aca,2026-11-03T21:42:05,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p03,14.789,541.6,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 10.112 s"
+20261103-214425-689163,2026-11-03T21:44:32,cloudnative_partstest,kolomna,10.0,1,W1_discovery,6.959,198.4,ok,DESKTOP-I00GJQP,3 items
+20261103-214425-689163,2026-11-03T21:45:09,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p00,34.426,500.9,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 30.127 s"
+20261103-214425-689163,2026-11-03T21:45:45,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p01,35.795,503.9,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 30.869 s"
+20261103-214425-689163,2026-11-03T21:46:10,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p02,24.981,500.1,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 20.882 s"
+20261103-214425-689163,2026-11-03T21:46:28,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p03,18.259,517.1,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 12.447 s"
+20261103-214425-689163,2026-11-03T21:46:46,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p04,17.83,498.2,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 11.612 s"
+20261103-214425-689163,2026-11-03T21:47:46,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p05,59.814,497.2,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 53.594 s"
+20261103-234142-477bf2,2026-11-03T23:41:56,cloudnative_partstest,kolomna,10.0,1,W1_discovery,14.082,191.8,error: APIError,DESKTOP-I00GJQP,
+20261104-152827-352d55,2026-11-04T15:28:36,cloudnative_partstest,kolomna,10.0,1,W1_discovery,8.744,198.2,ok,DESKTOP-I00GJQP,"3 items, attempt 1"
+20261104-152827-352d55,2026-11-04T15:29:43,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p06,67.263,463.7,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 61.835 s"
+20261104-152827-352d55,2026-11-04T15:30:01,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p07,17.582,468.6,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 11.643 s"
+20261104-152827-352d55,2026-11-04T15:30:15,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p08,13.909,467.5,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 8.369 s"
+20261104-152827-352d55,2026-11-04T15:31:36,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p09,81.13,466.5,error: RuntimeError,DESKTOP-I00GJQP,
+20261104-152827-352d55,2026-11-04T15:32:19,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p09,13.224,470.0,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 2, child 7.92 s"
+20261104-152827-352d55,2026-11-04T15:32:32,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p10,12.639,465.7,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 7.678 s"
+20261104-152827-352d55,2026-11-04T15:34:07,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p11,94.99,475.9,error: RuntimeError,DESKTOP-I00GJQP,
+20261104-152827-352d55,2026-11-04T15:39:54,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p11,317.284,480.2,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 2, child 311.106 s"
+20261104-152827-352d55,2026-11-04T15:41:48,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p12,114.046,467.9,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 96.324 s"
+20261104-152827-352d55,2026-11-04T15:42:06,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p13,17.813,497.9,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 11.772 s"
+20261104-152827-352d55,2026-11-04T15:42:23,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p14,16.83,474.0,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 11.337 s"
+20261104-152827-352d55,2026-11-04T15:47:46,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m09_p15,322.985,488.3,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 317.88 s"
+20261104-154828-87addd,2026-11-04T15:48:51,cloudnative_partstest,kolomna,10.0,1,W1_discovery,23.228,198.1,ok,DESKTOP-I00GJQP,"3 items, attempt 1"
+20261104-154828-87addd,2026-11-04T15:49:27,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p00,33.837,544.1,ok,DESKTOP-I00GJQP,"2 items, 2 dates, attempt 1, child 12.163 s"
+20261104-154828-87addd,2026-11-04T15:50:40,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p01,73.025,388.8,error: TimeoutError,DESKTOP-I00GJQP,
+20261104-154828-87addd,2026-11-04T15:51:27,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p01,16.964,545.5,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 2, child 11.397 s"
+20261104-154828-87addd,2026-11-04T15:52:37,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p02,70.072,533.0,error: TimeoutError,DESKTOP-I00GJQP,
+20261104-154828-87addd,2026-11-04T15:53:24,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p02,16.499,520.6,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 2, child 10.288 s"
+20261104-154828-87addd,2026-11-04T15:53:39,cloudnative_partstest,kolomna,10.0,1,W2W3_cube_composite_m10_p03,15.18,545.2,ok,DESKTOP-I00GJQP,"3 items, 3 dates, attempt 1, child 9.988 s"

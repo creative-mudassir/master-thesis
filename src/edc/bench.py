@@ -103,3 +103,17 @@ def stage(name, *, system, aoi, area_km, n_months, run_id, note="", csv_path=Non
             "status": status, "host": platform.node(), "note": info.get("note", ""),
         }, csv_path)
         print(f"[bench] {system:12s} {name:24s} {sec:9.2f} s  peak {mem.peak:7.0f} MB  {status}")
+
+
+def keep_awake():
+    """Ask Windows not to go to sleep while this process runs (no effect on other systems).
+
+    On 2026-11-03 two "stalls" of 3.7 h and 1.9 h were the laptop in Modern Standby (idle timeout,
+    lid closed): everything pauses, the download tokens expire, the first read after waking gets
+    HTTP 403. This blocks the IDLE sleep only; closing the lid or the power button still sleeps.
+    Released automatically when the process ends.
+    """
+    if os.name == "nt":
+        import ctypes
+        ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
+        ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)

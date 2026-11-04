@@ -21,6 +21,7 @@ from matplotlib.colors import ListedColormap  # noqa: E402
 
 from edc import config  # noqa: E402
 from edc.aoi import aoi_geobox  # noqa: E402
+from edc.bench import keep_awake  # noqa: E402
 from edc.labels import class_colors, load_worldcover, remap  # noqa: E402
 
 
@@ -29,6 +30,7 @@ def main():
     ap.add_argument("--aoi", default=None)
     ap.add_argument("--size-km", type=float, default=10)
     a = ap.parse_args()
+    keep_awake()                     # no idle sleep during the run
 
     wf = config.workflow()
     aoi = config.get_aoi(a.aoi)

@@ -6,6 +6,14 @@ import xarray as xr
 
 PC_STAC = "https://planetarycomputer.microsoft.com/api/stac/v1"
 
+# GDAL network settings for every COG read.
+# Retries: flaky reads are retried inside GDAL (D10).
+# Stall limits: a download that sends < 1 byte/s for 60 s, or one HTTP request that takes > 300 s,
+# is aborted by curl and becomes an ERROR (which 03_build_cube.py retries) instead of hanging
+# forever (observed: one read stalled for 3.7 h on 2026-11-03). Tested in tests/test_stall_gdal.py.
+GDAL_NET = dict(GDAL_HTTP_MAX_RETRY=10, GDAL_HTTP_RETRY_DELAY=2,
+                GDAL_HTTP_LOW_SPEED_TIME=60, GDAL_HTTP_LOW_SPEED_LIMIT=1, GDAL_HTTP_TIMEOUT=300)
+
 
 # ---------------------------------------------------------------- W1 discovery
 def open_catalog():
@@ -100,7 +108,7 @@ def load_month(items, gbox, bands, scl_band, resampling, chunk):
     # fail_on_error=True: if a scene still cannot be read, the month FAILS (and is logged as
     # an error stage) rather than producing a composite with missing scenes. Just rerun the
     # script: finished months are skipped.
-    odc.stac.configure_rio(cloud_defaults=True, GDAL_HTTP_MAX_RETRY=10, GDAL_HTTP_RETRY_DELAY=2)
+    odc.stac.configure_rio(cloud_defaults=True, **GDAL_NET)
     ds = odc.stac.load(
         items,
         bands=list(bands) + [scl_band],
@@ -112,6 +120,39 @@ def load_month(items, gbox, bands, scl_band, resampling, chunk):
         fail_on_error=True,
     )
     return ds
+
+
+def build_part(items, sub, wf):
+    """Download + mask + median for one spatial part (sub = the part's GeoBox). Returns (composite, n_dates)."""
+    ds = load_month(items, sub, wf["bands"], wf["scl_band"], wf["resampling"], wf["dask_chunks"])
+    off = offset_mask_for(ds, items) if wf["harmonise_baseline_04"] else None
+    comp = mask_and_median(ds, wf["bands"], wf["scl_band"], wf["cloud_mask"]["remove_scl_classes"], off)
+    return comp.compute(), int(ds.sizes["time"])
+
+
+def part_worker(conn, item_dicts, sub, wf, zarr_path, window, stall_s=0):
+    """Runs in a SEPARATE process (watchdog in 03_build_cube.py): builds one part, writes it into
+    its region of the month's Zarr and sends ("ok", n_dates, seconds) or ("error", message) back.
+
+    stall_s > 0 only in the stall test: sleep that long first, like a frozen download.
+    """
+    import os
+    import time
+    import pystac
+    t0 = time.perf_counter()
+    try:
+        if stall_s:
+            time.sleep(stall_s)
+        items = [pystac.Item.from_dict(d) for d in item_dicts]
+        comp, n_dates = build_part(items, sub, wf)
+        comp = comp.drop_vars(list(comp.coords))          # grid coords are in the store already
+        y0, y1, x0, x1 = window
+        comp.to_zarr(zarr_path, region={"y": slice(y0, y1), "x": slice(x0, x1)})
+        conn.send(("ok", n_dates, round(time.perf_counter() - t0, 3)))
+    except BaseException as e:
+        conn.send(("error", f"{type(e).__name__}: {str(e)[:300]}"))
+    conn.close()
+    os._exit(0)   # same exit-hang protection as the main script; the result is already sent
 
 
 def offset_mask_for(ds, items):
