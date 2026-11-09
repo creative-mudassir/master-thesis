@@ -1,36 +1,18 @@
-# Candidate study areas (AOIs) in Moscow region.
-# Each AOI is a square of size_km x size_km around the centre (in UTM 37N).
+# Candidate study areas (AOIs).
+# Each AOI is a square of size_km x size_km around the centre (in the grid CRS of workflow.yaml).
 # Smaller test areas (10 km, 25 km) use the SAME centre, so grids are nested.
 # Run: python scripts/02_aoi_report.py   -> pick the best one, set `selected`.
+#
+# 2026-11-09: the Moscow-region candidates (kolomna, serpukhov, new_moscow, ruza) were removed:
+# the supervisor asked to avoid Russia completely. New candidates: TODO (outside Russia).
+# Format of one entry:
+#   name:
+#     lat: 00.00
+#     lon: 00.00
+#     size_km: 50
+#     note: >
+#       why this area (classes, rivers, towns ...)
 
-selected: kolomna
+selected: null
 
-aois:
-  kolomna:
-    lat: 55.10
-    lon: 38.80
-    size_km: 50
-    note: >
-      South-east of Moscow. Kolomna + Voskresensk towns, Oka and Moskva rivers,
-      large croplands, mixed forest. Good class balance (recommended).
-  serpukhov:
-    lat: 54.95
-    lon: 37.50
-    size_km: 50
-    note: >
-      South of Moscow. Serpukhov/Chekhov/Pushchino, Oka river, Prioksko-Terrasny
-      forest, cropland. Good balance, more forest.
-  new_moscow:
-    lat: 55.50
-    lon: 37.35
-    size_km: 50
-    note: >
-      South-west edge of Moscow city (New Moscow, Troitsk). Much more built-up,
-      forest, less cropland. Useful as an urban-heavy AOI.
-  ruza:
-    lat: 55.70
-    lon: 36.25
-    size_km: 50
-    note: >
-      West of Moscow. Ruza and Ozerna reservoirs, forest-dominated, some cropland.
-      Forest-heavy AOI.
+aois: {}

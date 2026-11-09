@@ -1,10 +1,13 @@
-"""Day 1: test access to every platform with a tiny Sentinel-2 query.
+"""Day 1: check the data source and the locally installed systems.
 
     python scripts/01_check_access.py                 # all
-    python scripts/01_check_access.py --only pc       # Planetary Computer only
-    python scripts/01_check_access.py --only gee --gee-project my-ee-project
-    python scripts/01_check_access.py --only openeo
+    python scripts/01_check_access.py --only pc       # Planetary Computer (download source of the local archive)
+    python scripts/01_check_access.py --only docker   # Open Data Cube + rasdaman run in Docker
+    python scripts/01_check_access.py --only gdalcubes
+    python scripts/01_check_access.py --only openeo_local   # optional system; works only in an env that
+                                                            # has openeo-processes-dask AND this repo's packages
 
+Only the Planetary Computer needs internet: it is used ONCE to fill the local archive (D16).
 Result table -> outputs/tables/access_check.csv (attach this to the supervisor update).
 """
 import argparse
@@ -18,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import pandas as pd  # noqa: E402
 
 from edc import config  # noqa: E402
-from edc.aoi import aoi_geobox, lonlat_bbox  # noqa: E402
+from edc.aoi import aoi_grid, lonlat_bbox  # noqa: E402
 
 
 def check_pc(bbox):
@@ -38,50 +41,41 @@ def check_pc(bbox):
     return f"{n} S2 items in July 2021; read 256x256 B04 window (mean DN {arr.mean():.0f}); {len(wc)} WorldCover items"
 
 
-def check_gee(bbox, project):
-    import ee
-    try:
-        ee.Initialize(project=project)
-    except Exception:
-        ee.Authenticate()            # opens browser once
-        ee.Initialize(project=project)
-    geom = ee.Geometry.Rectangle(list(bbox))
-    n = (ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
-         .filterBounds(geom).filterDate("2021-07-01", "2021-08-01").size().getInfo())
-    return f"{n} images in COPERNICUS/S2_SR_HARMONIZED, July 2021 (project={project})"
+def run(cmd):
+    """Run a command, return its first output line (raises if it is missing or fails)."""
+    import subprocess
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    if r.returncode != 0:
+        raise RuntimeError((r.stderr or r.stdout).strip()[:300])
+    return (r.stdout or r.stderr).strip().splitlines()[0]
 
 
-def check_openeo(bbox):
-    import openeo
-    con = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()  # browser/device login
-    meta = con.describe_collection("SENTINEL2_L2A")
-    try:
-        acc = con.describe_account()
-        who = acc.get("name") or acc.get("user_id", "")
-    except Exception:
-        who = "?"
-    # openEO lists the band names as plain strings, e.g. ["B01", "B02", ..., "SCL"]
-    bands = meta.get("cube:dimensions", {}).get("bands", {}).get("values", [])
-    wf = config.workflow()
-    missing = [b for b in wf["bands"] + [wf["scl_band"]] if b not in bands]
-    if missing:
-        raise RuntimeError(f"SENTINEL2_L2A is missing bands {missing}")
-    return f"logged in as {who}; SENTINEL2_L2A available ({len(bands)} bands, all 10 + SCL present)"
+def check_docker():
+    """Docker runs the Open Data Cube (PostgreSQL + datacube) and rasdaman containers."""
+    return run(["docker", "version", "--format", "client {{.Client.Version}}, server {{.Server.Version}}"])
+
+
+def check_gdalcubes():
+    """gdalcubes is used through its R package."""
+    return run(["Rscript", "-e", "cat('gdalcubes', as.character(packageVersion('gdalcubes')))"])
+
+
+def check_openeo_local():
+    """Optional: openEO processes executed locally (openeo-processes-dask), no cloud back-end."""
+    import importlib.metadata as md
+    import openeo_processes_dask  # noqa: F401
+    return f"openeo-processes-dask {md.version('openeo-processes-dask')}"
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--only", choices=["pc", "gee", "openeo"])
-    ap.add_argument("--gee-project", default=None, help="your Google Cloud project id registered for Earth Engine")
+    ap.add_argument("--only", choices=["pc", "docker", "gdalcubes", "openeo_local"])
     a = ap.parse_args()
 
-    aoi = config.get_aoi()
-    gb = aoi_geobox(aoi["lat"], aoi["lon"], 10)
-    bbox = lonlat_bbox(gb)
-
-    checks = {"pc": lambda: check_pc(bbox),
-              "gee": lambda: check_gee(bbox, a.gee_project),
-              "openeo": lambda: check_openeo(bbox)}
+    checks = {"pc": lambda: check_pc(lonlat_bbox(aoi_grid(config.get_aoi(), 10, config.workflow()))),
+              "docker": check_docker,
+              "gdalcubes": check_gdalcubes,
+              "openeo_local": check_openeo_local}
     rows = []
     for name, fn in checks.items():
         if a.only and name != a.only:

@@ -1,4 +1,2 @@
 system,status,seconds,detail
-gee,OK,34.3,"12 images in COPERNICUS/S2_SR_HARMONIZED, July 2021 (project=edc-thesis)"
-openeo,OK,4.5,"logged in as Mudassir Iftikhar; SENTINEL2_L2A available (21 bands, all 10 + SCL present)"
 pc,OK,6.9,12 S2 items in July 2021; read 256x256 B04 window (mean DN 6838); 1 WorldCover items

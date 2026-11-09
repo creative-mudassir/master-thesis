@@ -6,17 +6,23 @@
 year: 2021                      # must match WorldCover 2021 v200 labels
 
 # Months used for the monthly composites (time steps of the cube).
-# Moscow region: snow cover ~Nov-Mar and very few clear scenes in winter,
-# so we use the snow-free season April-October (7 time steps).
-# Run scripts/02_aoi_report.py first: if winter months have almost no clear
-# scenes, keep this. Record the decision in docs/decisions.md.
+# TO RE-DECIDE for the new AOI (the Apr-Oct choice, D2, was made for the Moscow region and is superseded).
+# Run scripts/02_aoi_report.py + 02b_snow_report.py for the new AOI, then record the decision in docs/decisions.md.
 months: [4, 5, 6, 7, 8, 9, 10]
 
 grid:
-  crs: "EPSG:32637"             # UTM zone 37N (covers 36E-42E, all Moscow region)
+  crs: auto_utm                 # UTM zone of the AOI centre, e.g. EPSG:32633 (D17); computed by edc.aoi.aoi_grid()
   resolution: 10                # metres
 
-# Planetary Computer asset names for Sentinel-2 L2A
+# Local Sentinel-2 archive (D16): scenes are downloaded ONCE from Planetary Computer
+# (scripts/03a_download_archive.py) and EVERY system reads the same local files, so timings do not depend on the network.
+archive:
+  root: data/archive/sentinel-2-l2a   # <aoi>_<size>km/catalog.json (local STAC) + <scene id>/<band>.tif + item JSON
+  source: planetary-computer          # download source (STAC collection sentinel-2-l2a)
+  buffer_m: 500                       # each scene is cut to the 50 km AOI box + this margin, native CRS and
+                                      # pixels (no resampling), so every system still does W2 itself
+
+# Sentinel-2 L2A band names (Planetary Computer asset names; also the file names in the archive)
 bands: [B02, B03, B04, B05, B06, B07, B08, B8A, B11, B12]
 scl_band: SCL
 
@@ -27,8 +33,9 @@ cloud_mask:
   keep_snow: true               # SCL 11 (snow) is KEPT (decision, see docs/decisions.md)
 
 scene_filter:
-  max_scene_cloud_cover: 80     # % scene cloud cover, pre-filter before pixel masking (D14; was 60)
-                                # PC: eo:cloud_cover, GEE: CLOUDY_PIXEL_PERCENTAGE, openEO: eo:cloud_cover
+  max_scene_cloud_cover: 80     # % scene cloud cover (eo:cloud_cover), pre-filter before pixel masking.
+                                # 80 came from the Moscow test (D14, superseded): re-test for the new AOI.
+                                # Applied ONCE when the archive is filled, so all systems get the same scenes.
 
 composite:
   method: median                # per month, per pixel, over valid observations

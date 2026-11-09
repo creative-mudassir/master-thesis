@@ -1,9 +1,9 @@
 """Check (not part of the workflow): does building a month in spatial parts change the result?
 
 Compares, pixel by pixel, every variable (B02..B12, valid_count) of
-  * the real cube  data/cubes/cloudnative/<tag>/mXX.zarr            (03_build_cube.py, default parts)
-  * a test cube    data/cubes/cloudnative_partstest/<tag>/mXX.zarr  (03_build_cube.py --part-km 2.5)
-against the one-go builds of the D14 test (data/cubes/cloudnative_scenefilter_test/<tag>/mXX_cc80.zarr).
+  * the real cube  data/cubes/xarray/<tag>/mXX.zarr            (03_build_cube.py, default parts)
+  * a test cube    data/cubes/xarray_partstest/<tag>/mXX.zarr  (03_build_cube.py --part-km 2.5)
+against the one-go builds of the D14 test (data/cubes/xarray_scenefilter_test/<tag>/mXX_cc80.zarr).
 Also recomputes the no-data and empty-water shares of the real cube, to compare with D14.
 
     python scripts/03c_check_parts.py --size-km 10
@@ -33,9 +33,9 @@ def main():
     a = ap.parse_args()
     wf = config.workflow()
     tag = config.tag(config.get_aoi(a.aoi)["name"], a.size_km)
-    ref_dir = config.cube_dir("cloudnative_scenefilter_test", tag)
-    cubes = {"cloudnative": config.cube_dir("cloudnative", tag),
-             "cloudnative_partstest": config.cube_dir("cloudnative_partstest", tag)}
+    ref_dir = config.cube_dir("xarray_scenefilter_test", tag)
+    cubes = {"xarray": config.cube_dir("xarray", tag),
+             "xarray_partstest": config.cube_dir("xarray_partstest", tag)}
     water = xr.open_zarr(config.labels_path(tag))["label"].values == WATER
     variables = list(wf["bands"]) + ["valid_count"]
 

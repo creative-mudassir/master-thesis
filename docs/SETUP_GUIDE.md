@@ -13,11 +13,14 @@ Har step ke end mein **"Check"** likha hai: woh chal jaaye to agla step karein.
 | Cheez | Kam se kam | Behtar |
 |---|---|---|
 | RAM | 8 GB | 16 GB |
-| Free disk | 50 GB | 100 GB |
-| Internet | Stable. 50 km ka cube banane mein 10-20 GB data download hota hai | Raat ko chalayein |
-| OS | Windows 10/11, macOS ya Linux | — |
+| Free disk | 50 GB | 100 GB+ (local Sentinel-2 archive + cubes; Docker images bhi jagah lete hain) |
+| Internet | Sirf **ek dafa** zaroori: local archive download karne ke liye (D16). Us ke baad saare systems local files se parhte hain | Download raat ko chalayein |
+| OS | Windows 10/11 (WSL 2 + Docker ke saath), macOS ya Linux | — |
 
-GPU zaroori nahi: training Kaggle ke free GPU par hogi (step 6).
+GPU zaroori nahi: training Kaggle ke free GPU par hogi (step 4).
+
+**Systems sirf local hain (D15):** xarray + Zarr (reference), Open Data Cube, rasdaman, gdalcubes,
+aur optional openEO local (openeo-processes-dask). Koi cloud account (GEE, CDSE) nahi chahiye.
 
 ---
 
@@ -59,15 +62,16 @@ GPU zaroori nahi: training Kaggle ke free GPU par hogi (step 6).
 
 **Check:**
 ```
-python -c "import odc.stac, xarray, torch, onnxruntime, ee, openeo; print('all ok')"
+python -c "import odc.stac, xarray, zarr, torch, onnxruntime; print('all ok')"
 ```
 `all ok` aana chahiye. Har nayi terminal mein pehle `conda activate edc` likhna yaad rakhein.
 
 ---
 
-## 3. Microsoft Planetary Computer (cloud-native system)
+## 3. Microsoft Planetary Computer (sirf download source)
 
-**Account ki zaroorat nahi.** Data free hai; `planetary-computer` package khud URLs sign kar deta hai.
+**Account ki zaroorat nahi.** Sentinel-2 scenes aur WorldCover labels yahan se **ek dafa** download hote
+hain (local archive, D16). Koi system timing ke dauran Planetary Computer se nahi parhta.
 
 **Check:**
 ```
@@ -77,72 +81,53 @@ Output mein `== pc: OK` aur July 2021 ke items ki ginti aani chahiye.
 
 ---
 
-## 4. Google Earth Engine (GEE)
-
-1. Gmail account se login karein aur https://code.earthengine.google.com/register kholein.
-2. **"Use with a Cloud project"** / non-commercial (unpaid) use chunein.
-3. Use type: **Academia & Research** (aap student hain).
-4. **Create a new Google Cloud project** chunein. Project ID likhein, masalan `edc-thesis-mudassir`.
-   Yeh ID yaad rakhein, har jagah lagegi.
-5. Form submit karein. Agar billing ya verification maange, to screen ki hidayat follow karein.
-   Agar masla aaye (country, card, approval), screenshot lein aur `docs/effort_diary.md` mein likhein:
-   yeh bhi ek finding hai (platform access barrier).
-6. Terminal mein:
-   ```
-   earthengine authenticate
-   ```
-   Browser khulega, wahi Gmail chunein aur permission dein.
-
-**Check:**
-```
-python scripts/01_check_access.py --only gee --gee-project edc-thesis-mudassir
-```
-`== gee: OK` aur images ki ginti aani chahiye.
-
-Note: non-commercial projects par compute quota hoti hai. Cloud console mein Earth Engine ke
-quota page par apni limit dekh kar `docs/effort_diary.md` mein note karein (yeh "cost/quota" table mein jaayegi).
-
----
-
-## 5. Copernicus Data Space Ecosystem (openEO)
-
-1. https://dataspace.copernicus.eu kholein → **Register** (ya "Login" → "Register").
-2. Form bharein (naam, email, country, use = Research/Education). Email verify karein.
-3. Terminal mein:
-   ```
-   python scripts/01_check_access.py --only openeo
-   ```
-   Pehli dafa terminal mein ek **link + code** aayega. Link browser mein kholein, apne CDSE account se
-   login karein, code confirm karein. Script khud aage barh jaayegi.
-
-**Check:** `== openeo: OK`.
-
-Note: openEO free tier mein har mahine mehdood **credits** milte hain. Kitne credits hain aur kitne
-kharch hue, yeh CDSE dashboard / openEO web editor (https://openeo.dataspace.copernicus.eu) mein dekh
-kar note karein. Pehle hamesha 10 km area par test karein.
-
----
-
-## 6. Kaggle (free GPU for training)
+## 4. Kaggle (free GPU for training)
 
 1. https://www.kaggle.com par sign up karein.
 2. **Settings → Phone verification** karein. Is ke baghair GPU aur internet nahi milta.
 3. Kaggle har hafte lagbhag 30 ghante free GPU deta hai (exact quota apne account mein dekhein).
    Hamare chhote models ke liye yeh kaafi hai.
 
-Training ke steps `docs/RUNBOOK.md` → Step 6 mein hain.
+Training ke steps `docs/RUNBOOK.md` → Step 5 mein hain.
 
 **Check:** New Notebook → right panel → Accelerator mein "GPU" option nazar aaye.
 
 ---
 
-## 7. Docker Desktop (Open Data Cube ke liye, Day 8 se pehle)
+## 5. Docker Desktop (Open Data Cube aur rasdaman ke liye)
 
 1. https://www.docker.com/products/docker-desktop/ se install karein.
    Windows par WSL 2 maangega: installer jo kahe woh karein, phir restart.
-2. **Check:** `docker run hello-world` → "Hello from Docker!" aaye.
+2. **Check:** `docker run hello-world` → "Hello from Docker!" aaye, aur
+   `python scripts/01_check_access.py --only docker` → `== docker: OK`.
+3. Open Data Cube: PostgreSQL + `datacube` containers (setup `scripts/odc_*` ke saath likha jaayega).
+4. rasdaman: official guide https://doc.rasdaman.org dekhein (Docker ya WSL Ubuntu packages).
+   Jo install method chunein, woh aur us mein lagne wala waqt `docs/effort_diary.md` mein likhein
+   (installation effort bhi ek result hai: capability matrix row I1).
 
-Abhi zaroori nahi; ODC wale din se pehle kar lein.
+Local archive ki files containers ke andar bhi chahiye: `data/archive/` ko volume ki tarah mount karein,
+copy na karein, taake har system bilkul wahi files parhe.
+
+---
+
+## 6. R aur gdalcubes
+
+1. R install karein: https://cran.r-project.org (Windows: "base" installer, default options).
+2. R kholein aur chalayein: `install.packages("gdalcubes")`
+3. **Check:** `python scripts/01_check_access.py --only gdalcubes` → `== gdalcubes: OK` aur version.
+   (`Rscript` PATH par hona chahiye; na ho to R ka `bin` folder PATH mein daalein.)
+
+---
+
+## 7. openEO local (OPTIONAL)
+
+Sirf agar waqt ho. Is ki dependencies `edc` env ko kharab kar sakti hain, is liye alag env:
+```
+conda create -n edc-openeo -c conda-forge python=3.11 -y
+conda activate edc-openeo
+pip install "openeo-processes-dask[implementations]"
+```
+**Check (isi env mein):** `python -c "import openeo_processes_dask; print('ok')"` → `ok`.
 
 ---
 
@@ -168,8 +153,8 @@ Yeh sirf Anthropic ke supported countries se chalta hai.
 
 - "Run `python scripts/03_build_cube.py --size-km 10`. If it fails, explain the error in simple words and fix it."
 - "Explain what `src/edc/cloudnative.py` does, step by step, in simple English."
-- "Write `scripts/gee_build_cube.py` that does W1-W3 in Google Earth Engine on exactly the grid from
-  `edc.aoi.aoi_geobox`, exports the monthly composites, and saves them in the common Zarr format
+- "Write `scripts/odc_build_cube.py` that indexes the local archive in Open Data Cube and does W1-W3
+  on exactly the grid from `edc.aoi.aoi_grid`, and saves the monthly composites in the common Zarr format
   (see CLAUDE.md rule 2). Time every stage with `edc.bench.stage`. Test on 10 km first."
 - "Look at outputs/figures/cube_quicklook_*.png and tell me if the cloud masking looks right."
 

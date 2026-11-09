@@ -2,7 +2,7 @@
 
     python tests/run_resume_test.py
 
-1. builds September of the 10 km cube in 16 parts (2.5 km) into data/cubes/cloudnative_partstest/;
+1. builds September of the 10 km cube in 16 parts (2.5 km) into data/cubes/xarray_partstest/;
 2. KILLS the whole process tree (like closing the terminal / a crash) after >= 6 parts are written;
 3. reruns WITHOUT --overwrite and checks that it says "resuming, N/16" with the N parts that were done;
 4. checks that the finished month is identical, value for value, to the one-go build of the D14 test.
@@ -18,10 +18,14 @@ import psutil
 import xarray as xr
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "data" / "cubes" / "cloudnative_partstest" / "kolomna_10km"
-REF = ROOT / "data" / "cubes" / "cloudnative_scenefilter_test" / "kolomna_10km" / "m09_cc80.zarr"
+sys.path.insert(0, str(ROOT / "src"))
+from edc import config  # noqa: E402
+
+TAG = config.tag(config.get_aoi()["name"], 10)          # selected AOI in configs/aois.yaml, 10 km
+OUT = ROOT / "data" / "cubes" / "xarray_partstest" / TAG
+REF = ROOT / "data" / "cubes" / "xarray_scenefilter_test" / TAG / "m09_cc80.zarr"   # from 03b (one-go build)
 ARGS = [sys.executable, "-u", str(ROOT / "scripts" / "03_build_cube.py"), "--size-km", "10",
-        "--months", "9", "--part-km", "2.5", "--out-system", "cloudnative_partstest"]
+        "--months", "9", "--part-km", "2.5", "--out-system", "xarray_partstest"]
 KILL_AFTER = 6
 
 

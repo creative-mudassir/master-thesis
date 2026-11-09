@@ -3,7 +3,7 @@
 Usage:
     from edc.bench import stage, new_run_id
     run_id = new_run_id()
-    with stage("W1_discovery", system="cloudnative", aoi="kolomna", area_km=10,
+    with stage("W1_discovery", system="xarray", aoi="myaoi", area_km=10,
                n_months=7, run_id=run_id):
         items = search(...)
 

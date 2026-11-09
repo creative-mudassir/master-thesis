@@ -32,7 +32,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--aoi", default=None)
     ap.add_argument("--size-km", type=float, default=50)
-    ap.add_argument("--system", default="cloudnative")
+    ap.add_argument("--system", default="xarray")
     a = ap.parse_args()
 
     wf = config.workflow()

@@ -4,27 +4,33 @@ MSc Data Science thesis, HSE University — Mudassir Iftikhar
 Supervisor: Prof. Ramon Antonio Rodriges Zalipynis
 
 One end-to-end deep learning workflow (Sentinel-2 discovery → data cube → cloud masking and monthly
-compositing → CNN / temporal Transformer inference → land-cover map) is implemented in four Earth
-Data Cube systems and compared on runtime, development effort, capabilities, reproducibility and
-map consistency.
+compositing → CNN / temporal Transformer inference → land-cover map) is implemented in several
+**locally installed** Earth Data Cube systems and compared on runtime, development effort,
+capabilities, reproducibility and map consistency.
 
-| System | Status |
-|---|---|
-| Cloud-native (STAC + odc-stac + xarray + Zarr), reference | in progress |
-| Google Earth Engine | planned |
-| openEO (Copernicus Data Space Ecosystem) | planned |
-| Open Data Cube | planned |
+| System (id) | Software | Status |
+|---|---|---|
+| `xarray` (reference) | xarray + dask + Zarr (odc-stac for loading) | in progress |
+| `odc` | Open Data Cube (Docker: PostgreSQL + datacube) | planned |
+| `rasdaman` | rasdaman (Docker) | planned |
+| `gdalcubes` | gdalcubes (R package) | planned |
+| `openeo_local` | openEO processes run locally (openeo-processes-dask) | optional |
 
-Study area: Moscow region (see `configs/aois.yaml`), Sentinel-2 L2A 2021, labels ESA WorldCover 2021.
+**Same input for every system:** the Sentinel-2 L2A scenes are downloaded **once** into a local
+archive (`data/archive/`), and all systems read the same local files, so timings do not depend on the
+network (decision D16). The common grid uses the UTM zone of the study area (D17).
+
+Study area: to be chosen (outside Russia, see `configs/aois.yaml`), Sentinel-2 L2A 2021,
+labels ESA WorldCover 2021.
 
 ## Quick start
 ```
 conda env create -f environment.yml && conda activate edc && pip install torch
-python scripts/01_check_access.py --gee-project <id>
+python scripts/01_check_access.py
 python scripts/02_aoi_report.py
 python scripts/03_build_cube.py --size-km 10
 ```
-- Setup and accounts: `docs/SETUP_GUIDE.md`
+- Setup: `docs/SETUP_GUIDE.md`
 - All steps: `docs/RUNBOOK.md`
 - Fixed workflow rules: `configs/workflow.yaml`
 - Decisions: `docs/decisions.md`

@@ -1,8 +1,8 @@
 """Day 5: W6 deployment + W7 export: wall-to-wall land-cover map from a system's cube.
 
-    python scripts/08_predict_map.py --system cloudnative --model cnn_seed0
-    python scripts/08_predict_map.py --system cloudnative --model transformer_seed0
-    python scripts/08_predict_map.py --system cloudnative --model rf_seed0
+    python scripts/08_predict_map.py --system xarray --model cnn_seed0
+    python scripts/08_predict_map.py --system xarray --model transformer_seed0
+    python scripts/08_predict_map.py --system xarray --model rf_seed0
 
 Every system writes its cube in the same format (data/cubes/<system>/<tag>/mXX.zarr),
 so the same ONNX model file is applied to every system's cube.
@@ -20,6 +20,7 @@ import rasterio  # noqa: E402
 from rasterio.transform import Affine  # noqa: E402
 
 from edc import config  # noqa: E402
+from edc.aoi import aoi_grid  # noqa: E402
 from edc.bench import new_run_id, stage  # noqa: E402
 from edc.cloudnative import open_cube  # noqa: E402
 from edc.dataset import normalise  # noqa: E402
@@ -38,7 +39,7 @@ def predictor(model_path, kind):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--system", default="cloudnative")
+    ap.add_argument("--system", default="xarray")
     ap.add_argument("--model", required=True, help="e.g. cnn_seed0, transformer_seed0, rf_seed0")
     ap.add_argument("--aoi", default=None)
     ap.add_argument("--size-km", type=float, default=50)
@@ -97,7 +98,7 @@ def main():
     tif = config.maps_dir(a.system) / f"{tag}_{a.model}.tif"
     with stage("W7_export_map", **common):
         with rasterio.open(tif, "w", driver="GTiff", height=H, width=W, count=1, dtype="uint8",
-                           crs=wf["grid"]["crs"], transform=transform, nodata=255,
+                           crs=aoi_grid(aoi, a.size_km, wf).crs, transform=transform, nodata=255,
                            compress="deflate", tiled=True) as dst:
             dst.write(out, 1)
     print("saved", tif)

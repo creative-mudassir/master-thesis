@@ -24,7 +24,7 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from edc import config  # noqa: E402
-from edc.aoi import aoi_geobox, geojson_feature, lonlat_bbox  # noqa: E402
+from edc.aoi import aoi_grid, geojson_feature, lonlat_bbox  # noqa: E402
 from edc.cloudnative import open_catalog  # noqa: E402
 from edc.labels import WC_COLORS, WC_NAMES, load_worldcover  # noqa: E402
 
@@ -55,7 +55,7 @@ def main():
     counts, shares, feats = [], [], []
     for name, a in cfg["aois"].items():
         print(f"--- {name}")
-        gb = aoi_geobox(a["lat"], a["lon"], a["size_km"], wf["grid"]["crs"], wf["grid"]["resolution"])
+        gb = aoi_grid(a, a["size_km"], wf)
         bbox = lonlat_bbox(gb)
         feats.append(geojson_feature(gb, name))
         sc, tiles = scene_counts(bbox, year)

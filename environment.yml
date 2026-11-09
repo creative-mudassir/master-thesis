@@ -15,7 +15,7 @@ dependencies:
   - odc-stac
   - odc-geo
   - pystac-client
-  - planetary-computer
+  - planetary-computer          # only to download the local archive ONCE (D16) and WorldCover labels
   - scikit-learn
   - joblib
   - matplotlib
@@ -25,9 +25,16 @@ dependencies:
   - jupyterlab
   - pip
   - pip:
-      - earthengine-api
-      - openeo
       - onnx
       - onnxruntime
 # PyTorch is installed separately (see docs/SETUP_GUIDE.md, step 2),
 # because the right command depends on whether you have an NVIDIA GPU.
+#
+# This env = the reference system (xarray + Zarr) + training/evaluation.
+# The other systems are installed separately, so their dependencies cannot break this env
+# (docs/SETUP_GUIDE.md):
+#   odc          Open Data Cube   -> Docker (PostgreSQL + datacube)
+#   rasdaman     rasdaman         -> Docker
+#   gdalcubes    gdalcubes        -> R + the R package gdalcubes
+#   openeo_local openEO, local    -> optional, own conda env with openeo-processes-dask
+# Google Earth Engine and the CDSE openEO client were removed (D15).

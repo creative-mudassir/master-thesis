@@ -10,7 +10,7 @@ Does NOT change configs/workflow.yaml and does NOT touch the real cube or timing
 A failed build (network error) is retried up to --retries times; every attempt is logged.
 
 Outputs (<mm> = m09 for one month, m04-m10 for several):
-  data/cubes/cloudnative_scenefilter_test/<tag>/mXX_cc<F>.zarr     test composites
+  data/cubes/xarray_scenefilter_test/<tag>/mXX_cc<F>.zarr     test composites
   outputs/tables/scene_filter_test_<mm>_<tag>.csv                    one row per (month, filter) + total rows
   outputs/tables/scene_filter_test_<mm>_<tag>_scl_water.csv          SCL classes of water pixels (--scl-water)
   outputs/benchmarks/scene_filter_test.csv                           timings (separate from timings.csv)
@@ -28,7 +28,7 @@ import pandas as pd  # noqa: E402
 import xarray as xr  # noqa: E402
 
 from edc import config  # noqa: E402
-from edc.aoi import aoi_geobox, lonlat_bbox  # noqa: E402
+from edc.aoi import aoi_grid, lonlat_bbox  # noqa: E402
 from edc.bench import new_run_id, stage  # noqa: E402
 from edc.cloudnative import load_month, mask_and_median, offset_mask_for, search_s2  # noqa: E402
 
@@ -63,13 +63,13 @@ def main():
     wf = config.workflow()
     aoi = config.get_aoi(a.aoi)
     tag = config.tag(aoi["name"], a.size_km)
-    gbox = aoi_geobox(aoi["lat"], aoi["lon"], a.size_km, wf["grid"]["crs"], wf["grid"]["resolution"])
-    out = config.cube_dir("cloudnative_scenefilter_test", tag)
+    gbox = aoi_grid(aoi, a.size_km, wf)
+    out = config.cube_dir("xarray_scenefilter_test", tag)
     bench_csv = config.path("outputs", "benchmarks", "scene_filter_test.csv")
     lab = xr.open_zarr(config.labels_path(tag))["label"].values
     water, not_built = lab == WATER, (lab != BUILT) & (lab != 255)
     run = new_run_id()
-    common = dict(system="cloudnative_test", aoi=aoi["name"], area_km=a.size_km, n_months=1,
+    common = dict(system="xarray_test", aoi=aoi["name"], area_km=a.size_km, n_months=1,
                   run_id=run, csv_path=bench_csv)
 
     rows, scl_rows = [], []

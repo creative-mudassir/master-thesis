@@ -20,7 +20,7 @@ import xarray as xr  # noqa: E402
 from matplotlib.colors import ListedColormap  # noqa: E402
 
 from edc import config  # noqa: E402
-from edc.aoi import aoi_geobox  # noqa: E402
+from edc.aoi import aoi_grid  # noqa: E402
 from edc.bench import keep_awake  # noqa: E402
 from edc.labels import class_colors, load_worldcover, remap  # noqa: E402
 
@@ -35,7 +35,7 @@ def main():
     wf = config.workflow()
     aoi = config.get_aoi(a.aoi)
     tag = config.tag(aoi["name"], a.size_km)
-    gbox = aoi_geobox(aoi["lat"], aoi["lon"], a.size_km, wf["grid"]["crs"], wf["grid"]["resolution"])
+    gbox = aoi_grid(aoi, a.size_km, wf)
 
     wc = load_worldcover(gbox, wf["year"]).compute()
     lab = remap(wc.values, wf["labels"]["remap"])

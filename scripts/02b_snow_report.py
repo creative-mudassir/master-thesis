@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from edc import config  # noqa: E402
-from edc.aoi import aoi_geobox, lonlat_bbox  # noqa: E402
+from edc.aoi import aoi_grid, lonlat_bbox  # noqa: E402
 from edc.cloudnative import open_catalog  # noqa: E402
 
 CLEAR = 20  # % scene cloud cover counted as "clear" (same as 02_aoi_report.py)
@@ -36,7 +36,7 @@ def main():
     wf = config.workflow()
     aoi = config.get_aoi(a.aoi)
     year, used = wf["year"], wf["months"]
-    gb = aoi_geobox(aoi["lat"], aoi["lon"], aoi["size_km"], wf["grid"]["crs"], wf["grid"]["resolution"])
+    gb = aoi_grid(aoi, aoi["size_km"], wf)
 
     items = open_catalog().search(collections=["sentinel-2-l2a"], bbox=lonlat_bbox(gb),
                                   datetime=f"{year}-01-01/{year}-12-31").item_collection()
