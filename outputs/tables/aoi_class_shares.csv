@@ -1,0 +1,29 @@
+aoi,code,class,share_pct
+austria_tulln,10,Tree cover,41.516
+austria_tulln,30,Grassland,14.0256
+austria_tulln,40,Cropland,38.1476
+austria_tulln,50,Built-up,4.9708
+austria_tulln,60,Bare/sparse,0.092
+austria_tulln,80,Water,1.246
+austria_tulln,90,Herb. wetland,0.002
+slovenia_ljubljana,10,Tree cover,67.9728
+slovenia_ljubljana,30,Grassland,19.9876
+slovenia_ljubljana,40,Cropland,6.46
+slovenia_ljubljana,50,Built-up,5.2656
+slovenia_ljubljana,60,Bare/sparse,0.0764
+slovenia_ljubljana,80,Water,0.2376
+nl_flevoland,10,Tree cover,19.0228
+nl_flevoland,20,Shrubland,0.0016
+nl_flevoland,30,Grassland,18.18
+nl_flevoland,40,Cropland,26.7944
+nl_flevoland,50,Built-up,4.8808
+nl_flevoland,60,Bare/sparse,0.1148
+nl_flevoland,80,Water,29.618
+nl_flevoland,90,Herb. wetland,1.3876
+dk_funen,10,Tree cover,21.848
+dk_funen,30,Grassland,18.7436
+dk_funen,40,Cropland,43.9516
+dk_funen,50,Built-up,4.5484
+dk_funen,60,Bare/sparse,0.0468
+dk_funen,80,Water,10.6836
+dk_funen,90,Herb. wetland,0.178

@@ -4,7 +4,8 @@
 # Run: python scripts/02_aoi_report.py   -> pick the best one, set `selected`.
 #
 # 2026-11-09: the Moscow-region candidates (kolomna, serpukhov, new_moscow, ruza) were removed:
-# the supervisor asked to avoid Russia completely. New candidates: TODO (outside Russia).
+# the supervisor asked to avoid Russia completely.
+# 2026-11-09: four EU candidates added. Each gets the UTM zone of its centre (grid.crs: auto_utm, D17).
 # Format of one entry:
 #   name:
 #     lat: 00.00
@@ -13,6 +14,34 @@
 #     note: >
 #       why this area (classes, rivers, towns ...)
 
-selected: null
+selected: austria_tulln         # decision D18 (2026-11-09)
 
-aois: {}
+aois:
+  austria_tulln:                # UTM 33N (EPSG:32633)
+    lat: 48.30
+    lon: 15.95
+    size_km: 50
+    note: >
+      Tullnerfeld, Lower Austria, west of Vienna. Danube river and floodplain forest, large croplands,
+      Tulln and smaller towns, Wienerwald forest at the south-east edge.
+  slovenia_ljubljana:           # UTM 33N (EPSG:32633)
+    lat: 46.05
+    lon: 14.50
+    size_km: 50
+    note: >
+      Ljubljana basin, Slovenia. Capital city (built-up), Ljubljansko barje wetland/grassland,
+      Sava river, forested hills; small fields. Alps nearby (more clouds/snow likely).
+  nl_flevoland:                 # UTM 31N (EPSG:32631)
+    lat: 52.50
+    lon: 5.60
+    size_km: 50
+    note: >
+      Flevoland polders, Netherlands. Reclaimed land with large regular crop fields, Lelystad/Almere,
+      planted forests, much open water (IJsselmeer/Markermeer) inside the box.
+  dk_funen:                     # UTM 32N (EPSG:32632)
+    lat: 55.30
+    lon: 10.40
+    size_km: 50
+    note: >
+      Funen (Fyn) island, Denmark. Odense city, intensive cropland, small forests, coast and sea
+      inside the box.

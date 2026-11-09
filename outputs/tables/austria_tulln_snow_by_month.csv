@@ -1,0 +1,13 @@
+month,used_in_workflow,n_items,median_snow_pct,n_clear_items,median_snow_pct_clear_items,clear_dates,median_cloud_pct
+1,False,12,4.97,0,,0,82.31
+2,False,11,1.34,3,1.34,3,76.8
+3,False,13,1.23,4,3.53,4,71.28
+4,True,12,0.64,0,,0,71.32
+5,True,12,1.94,1,0.31,1,88.34
+6,True,12,0.01,6,0.01,6,19.85
+7,True,13,0.01,5,0.0,5,33.37
+8,True,12,0.1,2,0.0,2,44.59
+9,True,12,0.12,2,0.0,2,83.36
+10,True,7,0.04,2,0.02,2,54.14
+11,False,11,0.0,1,0.05,1,84.09
+12,False,17,1.9,1,6.95,1,75.96

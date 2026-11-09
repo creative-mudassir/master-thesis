@@ -1,0 +1,8 @@
+month,cube,reference,values_compared,values_different,max_abs_difference,identical,no_valid_pct,water_empty_pct
+4,xarray,one-go cc80,11000000,0,0,True,0.48,2.45
+5,xarray,one-go cc80,11000000,0,0,True,0.06,1.09
+6,xarray,one-go cc80,11000000,0,0,True,0.03,0.25
+7,xarray,one-go cc80,11000000,0,0,True,0.01,0.03
+8,xarray,one-go cc80,11000000,0,0,True,0.05,0.06
+9,xarray,one-go cc80,11000000,0,0,True,0.06,0.01
+10,xarray,one-go cc80,11000000,0,0,True,0.0,0.0

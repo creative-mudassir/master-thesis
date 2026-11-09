@@ -1,0 +1,8 @@
+run_id,timestamp,system,aoi,area_km,n_months,stage,seconds,peak_rss_mb,status,host,note
+20261109-045051-5b30ee,2026-11-09T04:53:46,xarray_test,austria_tulln,10.0,1,W2W3_m04_maxcloud80,166.325,801.6,ok,DESKTOP-I00GJQP,"8 items, 8 dates"
+20261109-045051-5b30ee,2026-11-09T04:54:22,xarray_test,austria_tulln,10.0,1,W2W3_m05_maxcloud80,34.235,740.4,ok,DESKTOP-I00GJQP,"3 items, 3 dates"
+20261109-045051-5b30ee,2026-11-09T04:56:36,xarray_test,austria_tulln,10.0,1,W2W3_m06_maxcloud80,131.648,987.8,ok,DESKTOP-I00GJQP,"11 items, 11 dates"
+20261109-045051-5b30ee,2026-11-09T04:58:21,xarray_test,austria_tulln,10.0,1,W2W3_m07_maxcloud80,100.57,957.8,ok,DESKTOP-I00GJQP,"11 items, 11 dates"
+20261109-045051-5b30ee,2026-11-09T04:59:10,xarray_test,austria_tulln,10.0,1,W2W3_m08_maxcloud80,45.436,813.8,ok,DESKTOP-I00GJQP,"8 items, 8 dates"
+20261109-045051-5b30ee,2026-11-09T04:59:47,xarray_test,austria_tulln,10.0,1,W2W3_m09_maxcloud80,32.026,632.9,ok,DESKTOP-I00GJQP,"5 items, 5 dates"
+20261109-045051-5b30ee,2026-11-09T05:01:19,xarray_test,austria_tulln,10.0,1,W2W3_m10_maxcloud80,88.404,950.7,ok,DESKTOP-I00GJQP,"5 items, 5 dates"

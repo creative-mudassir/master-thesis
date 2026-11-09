@@ -154,3 +154,38 @@ measured results of the study (RQ6), not just notes.
   still sleeps → for the overnight run: laptop on power, lid open.
 - Documentation used: Python `multiprocessing` docs (spawn on Windows) — good; GDAL config options
   (GDAL_HTTP_LOW_SPEED_TIME) — good.
+
+### 2026-11-09 — system: xarray (reference) + local archive (D16), test AOI austria_tulln 10 km
+- Hours spent today: TODO
+- What I did: wrote `scripts/03a_download_archive.py` (+ `src/edc/archive.py`, `src/edc/robust.py`) and switched
+  `03_build_cube.py` to read only the local archive. Tested on austria_tulln, 10 km (selected AOI not set yet).
+- Results (logs + `outputs/benchmarks/timings.csv`, `outputs/tables/parts_check_austria_tulln_10km.csv`):
+  1. Archive: 51 scenes (cloud < 80%, Apr-Oct 2021), 561 band files, 456 MB; 51 ok `W0_download` rows,
+     3459 s in total (mean 68 s per scene, network-bound).
+  2. Watchdog: the deliberately frozen scene 2 was killed after 180 s (`TimeoutError: did not finish within 180 s;
+     child process killed`) and the retry worked.
+  3. Resume: the download was killed after 5 scenes; the rerun printed `51 scenes, 5 already in the archive,
+     46 to download`. Catalogue check: every asset readable, CRS and shape match the STAC item.
+  4. The cube from the LOCAL archive is **identical value for value** (7 months x 11 variables) to a cube built
+     directly from the Planetary Computer COGs (`03b`, one go). So cutting the COGs to the AOI box changes nothing.
+  5. Same 10 km cube, W2W3 per month: 6.4-18.5 s from the local archive vs 32-166 s from the network
+     (one run each, not yet a benchmark).
+- Problems: none new. (April has 0 "clear dates" in the AOI report, but with the 80% filter the 10 km April
+  composite has only 0.48% pixels without a valid observation.)
+- Documentation used: GDAL COG driver options, pystac Catalog (SELF_CONTAINED) — good.
+
+### 2026-11-09 — scope change + new study area (all systems)
+- Hours spent today: TODO
+- What I did: supervisor asked to avoid Russia completely and to use only locally installable cube systems.
+  Stopped/removed the 50 km Moscow run (it had already stopped by itself in month 5, part 11 of 25, probably
+  sleep/reboot; scheduled task `edc_50km` deleted), deleted all Moscow data (~955 MB) and outputs, marked
+  D1, D2, D8, D13, D14 superseded, added D15 (scope), D16 (local archive), D17 (UTM grid from the AOI).
+  Removed GEE and CDSE openEO from code, environment and setup guide; new system list: xarray (reference),
+  ODC, rasdaman, gdalcubes, optional openEO local.
+- New AOI: 4 EU candidates (austria_tulln, slovenia_ljubljana, nl_flevoland, dk_funen), `02_aoi_report.py` and
+  `02b_snow_report.py` for 2021 (all ran on the first try), EuroCrops years checked on the EuroCrops README,
+  Zenodo record (v9) and wiki: AT_2021, SI_2021, NL_2020/NL_2021 (sources disagree), DK_2019.
+  Selected **austria_tulln** (D18, comparison table in docs/decisions.md).
+- Problems / errors: none from the platforms. EuroCrops documentation is inconsistent (NL year differs between
+  GitHub and Zenodo; whole-country coverage is not stated) → AT_2021 coverage of the box still to check.
+- Documentation used: EuroCrops README/wiki/Zenodo — partial (see problems).
