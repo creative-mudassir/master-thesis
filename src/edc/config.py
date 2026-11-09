@@ -30,7 +30,7 @@ def get_aoi(name=None):
 
 
 def tag(aoi_name, size_km):
-    """Standard id used in all file names, e.g. 'kolomna_10km'."""
+    """Standard id used in all file names, e.g. 'myaoi_10km'."""
     return f"{aoi_name}_{int(size_km)}km"
 
 
@@ -45,6 +45,13 @@ def path(*parts, mkdir_parent=True):
 def cube_dir(system, aoi_tag):
     """Folder with one Zarr store per month: m04.zarr, m05.zarr, ..."""
     d = ROOT / "data" / "cubes" / system / aoi_tag
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def archive_dir(aoi_tag):
+    """Local Sentinel-2 archive of one AOI/size (D16), e.g. data/archive/sentinel-2-l2a/myaoi_50km."""
+    d = ROOT / workflow()["archive"]["root"] / aoi_tag
     d.mkdir(parents=True, exist_ok=True)
     return d
 
