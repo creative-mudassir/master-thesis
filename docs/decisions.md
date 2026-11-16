@@ -7,7 +7,7 @@ Every deviation from the approved plan or every choice that could affect results
 |---|------|----------|--------|
 | D1 | 2026-11-03 | **SUPERSEDED (2026-11-09): study area changed** (supervisor: avoid Russia completely). Old text: Study area in Moscow region (AOI candidates in configs/aois.yaml), UTM 37N (EPSG:32637) | Supervisor/university location; one UTM zone covers the region |
 | D2 | 2026-11-03 (confirmed with data the same day) | **SUPERSEDED (2026-11-09): study area changed** (supervisor: avoid Russia completely). Old text: Monthly composites for **April–October** (7 time steps) instead of 12 months | Checked for Kolomna 2021 from STAC metadata of 718 Sentinel-2 L2A scenes (`outputs/tables/kolomna_snow_by_month.csv`, `aoi_scene_counts.csv`, figure `kolomna_snow_by_month.png`). **Snow (Dec–Mar):** median snow/ice on clear scenes (cloud < 20%) is 78.8% (Dec), 79.6% (Feb), 81.0% (Mar) → the land surface is hidden even when the sky is clear. **Clouds (Nov, Jan):** January has 0 clear dates (median scene cloud 96.9%), November 3 (89.5%); November is cloudy, not snowy (0.02% snow on its 3 clear scenes). **Apr–Oct:** 44 clear dates (6.3 per month, every month ≥ 2) vs. 18 in Nov–Mar (3.6 per month); snow on clear scenes ≤ 2.7% (April) and ≤ 0.03% May–Oct. Note: Feb–Mar have as many clear dates as Apr–May, so clouds alone would not justify dropping them; snow does. Limits: snow % and cloud % are per whole MGRS tile, not only the AOI; September is weak (2 clear dates) but kept so the season is continuous |
-| D3 | 2026-11-03 | Snow (SCL 11) is kept, not masked | Snow is real surface information in April/October; masking it would empty those months |
+| D3 | 2026-11-03 | **SUPERSEDED (2026-11-17) by D20: snow (SCL 11) is now masked.** Old text: Snow (SCL 11) is kept, not masked | Snow is real surface information in April/October; masking it would empty those months |
 | D4 | 2026-11-03 | Months without any valid observation are gap-filled with the training mean (0 after normalisation), identically in all systems | One simple rule that every system can apply |
 | D5 | 2026-11-03 | ESA WorldCover 2021 is used as the reference label; accuracy = agreement with WorldCover, not ground truth | WorldCover is itself a model product (reported global overall accuracy about 77% for v200) → threat to validity |
 | D6 | 2026-11-03 | Models are trained once, on the cloud-native cube; other systems only prepare data and run inference | Fair comparison: differences come from the systems, not from retraining |
@@ -23,6 +23,8 @@ Every deviation from the approved plan or every choice that could affect results
 | D16 | 2026-11-09 | **Local Sentinel-2 archive:** the scenes are downloaded **once** (STAC `sentinel-2-l2a` from Planetary Computer, same scene filter for all) into `data/archive/sentinel-2-l2a/<aoi>_<size>km/` (one folder per scene with one COG per band + SCL and the scene's STAC item; `catalog.json` = local STAC catalogue; `scripts/03a_download_archive.py`, `src/edc/archive.py`). Each scene is cut to the 50 km AOI box + 500 m (`workflow.yaml` `archive`), in its **native CRS and pixels (no resampling)**, so W2 (reprojection to the common grid) is still done by every system. **All systems read only these local files**; no system reads from the network in a timed stage. The download is timed separately (stage `W0_download`) and is NOT part of the system comparison | The Moscow runs showed that the network dominated the timings (same build 5–47 s between tries; connection resets; token expiry, see effort diary 2026-11-03/04). With one shared local archive, timing differences come from the systems, and every system gets exactly the same input scenes. Smaller test areas (10, 25 km) are nested inside the 50 km box, so one archive serves all sizes. Each band file is a pixel window of the original COG (same values, no overviews) |
 | D17 | 2026-11-09 | **Grid CRS follows the AOI:** `workflow.yaml` `grid.crs: auto_utm` → UTM zone of the AOI centre (WGS 84, EPSG:326xx north / 327xx south), computed in `edc.aoi.aoi_grid()`, which every script uses. The whole AOI uses that one zone even if it crosses a zone border | A fixed EPSG:32637 only fits 36–42°E. One helper for all scripts keeps the grid identical in every system (CLAUDE.md rule 2). Inside a 50 km box the distortion of the neighbouring zone is negligible for 10 m pixels |
 | D18 | 2026-11-09 | **Study area: `austria_tulln`** (Tullnerfeld, Lower Austria; centre 48.30N 15.95E, 50 km box, grid EPSG:32633). Chosen from 4 EU candidates (comparison table below the decision log) | **Reasons:** (1) the only candidate where **both tasks** are possible: 38.2% cropland and EuroCrops labels **AT_2021**, the same year as the images and WorldCover 2021 (Ljubljana: SI_2021 but only 6.5% cropland; Funen: DK_2019 only; Flevoland: NL_2020 on Zenodo vs NL_2021 on GitHub); (2) **one Sentinel-2 tile** (33UWP) → smallest archive and download; (3) **good class balance** for land cover: Tree 41.5%, Crop 38.2%, Grass 14.0%, Built 5.0% (entropy 1.22, 4 classes ≥ 2%), no snow on clear scenes Jun–Oct (≤ 0.02%). **Weak points:** (a) **April has no clear date** (scene cloud < 20%); with the 80% filter the 10 km April composite had 0.48% pixels without a valid observation (`parts_check_austria_tulln_10km.csv`), still to check at 50 km; (b) **water only 1.3%** → water results rest on few pixels; (c) **coverage of the box by AT_2021 not yet checked** (the EuroCrops pages do not state whole-country coverage). Alternative if Task 2 is dropped: `dk_funen` (most clear dates, 21; 5 classes ≥ 2%). Sources: `outputs/tables/aoi_summary.csv`, `aoi_scene_counts.csv`, `aoi_class_shares.csv`, `<aoi>_snow_by_month.csv`; EuroCrops README, Zenodo record 8229128 (v9), wiki |
+| D19 | 2026-11-17 | **Months: March–November (9 time steps)** for austria_tulln (`workflow.yaml` `months: [3..11]`); December–February are not used | The Apr–Oct choice (D2) was made for Moscow. For Tulln: snow on clear scenes is low in March (median 3.5% of the whole MGRS tile) and ~0 in November (0.05%) (`austria_tulln_snow_by_month.csv`); inside the 10 km box only 0.4–0.5% of the valid observations in March are snow and 0% in November. With the 80% filter and snow masked, the 10 km composites of March (8 scenes) and November (4 scenes) are as complete as summer: no valid obs. 0.05% / 0.24%, empty water 0.19% / 1.13% (`scene_filter_test_m03-m11_austria_tulln_10km_local_mask11.csv`, tables below). November has only 1 clear date (tile cloud < 20%) but 4 usable scenes. **Limits:** one 10 km box in the lowland centre, one year (2021); the 50 km box includes the Wienerwald hills, which may have real snow in March → re-check March in the 50 km cube |
+| D20 | 2026-11-17 | **Snow (SCL 11) is masked** and the scene filter stays at **80%**. The mask removes SCL classes **0, 1, 3, 8, 9, 10, 11**; **every system must apply exactly this mask** (same classes, same rule: an observation is valid only if its SCL class is not in this list and B02 > 0) | Test at 10 km from the local archive, March–November, filter 60 vs 80, with snow kept (old D3) and with snow masked (tables below). **With snow kept, 80% breaks May:** bright pixels (B02 > 2000, non-built) 0.07% → **85.30%**, snow = 46.45% of the valid observations. Cause: the scene **2021-05-27 (79% scene cloud) has 88.4% of its pixels in SCL 11 "snow", which is really cloud** (figure `scene_filter_may_austria_tulln_10km.png`); kept as valid, it wins the median of only 3 scenes. **With snow masked, 80% is best or equal in every month:** May bright 0.07%, April no valid obs. 1.94% → 0.48% and empty water 10.73% → 2.45%; 9-month mean no valid obs. 0.36% (60) → 0.19% (80), empty water 2.56% → 1.59%, bright 0.10% → 0.06%; 63 instead of 50 scenes. In Tulln real snow is rare in March–November, so SCL 11 is more often misclassified cloud than snow. **Limits:** one 10 km box, one year; **May still has 10.18% empty water** (only one really clear scene); real snow in March in the Wienerwald (50 km box) is now removed as no data → check the 50 km cube |
 
 
 ### D18 — candidate comparison (Sentinel-2 L2A 2021, 50 km boxes)
@@ -42,3 +44,39 @@ Every deviation from the approved plan or every choice that could affect results
 
 Clear date = a date with at least one scene of < 20% cloud over its whole MGRS tile (`02_aoi_report.py`);
 "–" = no clear scene, snow not measurable. Flevoland's high entropy comes mostly from lake water (29.6%).
+
+
+### D19 / D20 — scene-filter test, austria_tulln 10 km, local archive (`scripts/03b_test_scene_filter.py --archive-km 10`)
+
+Columns: scenes / % pixels without a valid observation / % empty water pixels (WorldCover water) /
+% bright pixels (B02 > 2000, built-up excluded); "60 | 80" = scene filter.
+
+**(a) Snow kept (old D3)** — `outputs/tables/scene_filter_test_m03-m11_austria_tulln_10km_local.csv`
+
+| Month | Scenes 60 / 80 | No valid obs. % | Empty water % | Bright % |
+|---|---|---|---|---|
+| 3 | 6 / 8 | 0.06 / 0.05 | 0.20 / 0.19 | 0.01 / 0.01 |
+| 4 | 5 / 8 | 1.94 / 0.48 | 10.73 / 2.45 | 0.45 / 0.17 |
+| 5 | 1 / 3 | 0.82 / 0.06 | 10.58 / 1.09 | 0.07 / **85.30** |
+| 6 | 11 / 11 | 0.03 / 0.03 | 0.25 / 0.25 | 0.12 / 0.12 |
+| 7 | 9 / 11 | 0.04 / 0.01 | 0.04 / 0.03 | 0.06 / 0.07 |
+| 8 | 7 / 8 | 0.05 / 0.05 | 0.06 / 0.06 | 0.05 / 0.04 |
+| 9 | 4 / 5 | 0.07 / 0.06 | 0.03 / 0.01 | 0.06 / 0.05 |
+| 10 | 4 / 5 | 0.00 / 0.00 | 0.00 / 0.00 | 0.03 / 0.03 |
+| 11 | 3 / 4 | 0.24 / 0.24 | 1.13 / 1.13 | 0.02 / 0.02 |
+| Total / mean | 50 / 63 | 0.36 / 0.11 | 2.56 / 0.58 | 0.10 / 9.53 |
+
+**(b) Snow masked (D20)** — `outputs/tables/scene_filter_test_m03-m11_austria_tulln_10km_local_mask11.csv`
+
+| Month | Scenes 60 / 80 | No valid obs. % | Empty water % | Bright % |
+|---|---|---|---|---|
+| 3 | 6 / 8 | 0.06 / 0.05 | 0.20 / 0.19 | 0.01 / 0.01 |
+| 4 | 5 / 8 | 1.94 / 0.48 | 10.73 / 2.45 | 0.45 / 0.17 |
+| 5 | 1 / 3 | 0.82 / 0.80 | 10.58 / 10.18 | 0.07 / 0.07 |
+| 6 | 11 / 11 | 0.03 / 0.03 | 0.25 / 0.25 | 0.12 / 0.12 |
+| 7 | 9 / 11 | 0.04 / 0.01 | 0.04 / 0.03 | 0.06 / 0.07 |
+| 8 | 7 / 8 | 0.05 / 0.05 | 0.06 / 0.06 | 0.05 / 0.04 |
+| 9 | 4 / 5 | 0.07 / 0.06 | 0.05 / 0.04 | 0.05 / 0.04 |
+| 10 | 4 / 5 | 0.00 / 0.00 | 0.00 / 0.00 | 0.03 / 0.03 |
+| 11 | 3 / 4 | 0.24 / 0.24 | 1.13 / 1.13 | 0.02 / 0.02 |
+| Total / mean | 50 / 63 | 0.36 / 0.19 | 2.56 / 1.59 | 0.10 / 0.06 |

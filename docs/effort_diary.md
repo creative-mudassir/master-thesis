@@ -189,3 +189,13 @@ measured results of the study (RQ6), not just notes.
 - Problems / errors: none from the platforms. EuroCrops documentation is inconsistent (NL year differs between
   GitHub and Zenodo; whole-country coverage is not stated) → AT_2021 coverage of the box still to check.
 - Documentation used: EuroCrops README/wiki/Zenodo — partial (see problems).
+
+### 2026-11-17 — system: xarray (reference), months + mask for austria_tulln
+- Hours spent today: TODO
+- What I did: added March and November to the 10 km test archive (12 scenes, 63 in total, 560 MB, no failures),
+  extended `03b_test_scene_filter.py` (`--archive-km` = read the local archive, `--also-mask` = test extra SCL
+  classes, new column snow_obs_pct) and reran the 60 vs 80 filter test for March-November.
+- Finding (problem of the SCL product, not of a system): the scene 2021-05-27 (79% cloud) has 88.4% of its pixels
+  labelled SCL 11 "snow" although it is cloud; with snow kept, the 80% May composite became 85.3% bright.
+  Fix: snow is masked (D20, replaces D3); months March-November (D19). workflow.yaml changed accordingly.
+- Documentation used: Sentinel-2 SCL class list (workflow.yaml) — good.

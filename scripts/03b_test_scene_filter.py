@@ -6,11 +6,16 @@ Does NOT change configs/workflow.yaml and does NOT touch the real cube or timing
 
     python scripts/03b_test_scene_filter.py --size-km 10 --months 9 --filters 60 80 100 --scl-water
     python scripts/03b_test_scene_filter.py --size-km 10 --months 4 5 6 7 8 9 10 --filters 60 80
+    python scripts/03b_test_scene_filter.py --size-km 10 --months 3 4 5 6 7 8 9 10 11 --filters 60 80 --archive-km 10
 
+--archive-km: read the scenes from the local archive (D16) instead of Planetary Computer; the filter
+is then applied to the archive's scenes (so it can only be <= the archive's own scene filter).
 A failed build (network error) is retried up to --retries times; every attempt is logged.
+Column snow_obs_pct: share of the valid observations (all dates) in the box that are SCL 11 (snow),
+because snow is kept by the mask (D3) and can end up in the composite.
 
-Outputs (<mm> = m09 for one month, m04-m10 for several):
-  data/cubes/xarray_scenefilter_test/<tag>/mXX_cc<F>.zarr     test composites
+Outputs (<mm> = m09 for one month, m04-m10 for several; <src> = "test" from the network, "local" from the archive):
+  data/cubes/xarray_scenefilter_<src>/<tag>/mXX_cc<F>.zarr     test composites
   outputs/tables/scene_filter_test_<mm>_<tag>.csv                    one row per (month, filter) + total rows
   outputs/tables/scene_filter_test_<mm>_<tag>_scl_water.csv          SCL classes of water pixels (--scl-water)
   outputs/benchmarks/scene_filter_test.csv                           timings (separate from timings.csv)
@@ -30,7 +35,8 @@ import xarray as xr  # noqa: E402
 from edc import config  # noqa: E402
 from edc.aoi import aoi_grid, lonlat_bbox  # noqa: E402
 from edc.bench import new_run_id, stage  # noqa: E402
-from edc.cloudnative import load_month, mask_and_median, offset_mask_for, search_s2  # noqa: E402
+from edc.archive import open_archive  # noqa: E402
+from edc.cloudnative import items_over, load_month, mask_and_median, offset_mask_for, search_s2  # noqa: E402
 
 SCL_NAMES = {0: "no data", 1: "saturated", 2: "dark/shadow area", 3: "cloud shadow", 4: "vegetation",
              5: "not vegetated", 6: "water", 7: "unclassified", 8: "cloud medium", 9: "cloud high",
@@ -38,10 +44,10 @@ SCL_NAMES = {0: "no data", 1: "saturated", 2: "dark/shadow area", 3: "cloud shad
 WATER, BUILT = 6, 4      # training class ids (workflow.yaml labels.remap)
 
 
-def build(m, f, items, gbox, wf, zpath, common):
-    """Download + mask + median + write one test composite (one timed stage). Returns the loaded dataset."""
+def build(m, f, items, gbox, wf, zpath, common, local=False):
+    """Load + mask + median + write one test composite (one timed stage). Returns the loaded dataset."""
     with stage(f"W2W3_m{m:02d}_maxcloud{f}", **common) as info:
-        ds = load_month(items, gbox, wf["bands"], wf["scl_band"], wf["resampling"], wf["dask_chunks"])
+        ds = load_month(items, gbox, wf["bands"], wf["scl_band"], wf["resampling"], wf["dask_chunks"], local)
         off = offset_mask_for(ds, items) if wf["harmonise_baseline_04"] else None
         comp = mask_and_median(ds, wf["bands"], wf["scl_band"], wf["cloud_mask"]["remove_scl_classes"], off)
         shutil.rmtree(zpath, ignore_errors=True)
@@ -58,13 +64,26 @@ def main():
     ap.add_argument("--filters", type=int, nargs="+", default=[60, 80, 100])
     ap.add_argument("--retries", type=int, default=3)
     ap.add_argument("--scl-water", action="store_true", help="SCL classes of water pixels (largest filter)")
+    ap.add_argument("--archive-km", type=float, default=None, help="read from this local archive (D16)")
+    ap.add_argument("--also-mask", type=int, nargs="*", default=[],
+                    help="TEST ONLY: extra SCL classes to remove (e.g. 11 = snow), on top of workflow.yaml")
     a = ap.parse_args()
 
     wf = config.workflow()
+    wf["cloud_mask"]["remove_scl_classes"] = sorted(set(wf["cloud_mask"]["remove_scl_classes"]) | set(a.also_mask))
+    variant = "".join(f"_mask{c}" for c in a.also_mask)       # e.g. "_mask11"; workflow.yaml is NOT changed
     aoi = config.get_aoi(a.aoi)
     tag = config.tag(aoi["name"], a.size_km)
     gbox = aoi_grid(aoi, a.size_km, wf)
-    out = config.cube_dir("xarray_scenefilter_test", tag)
+    local = a.archive_km is not None
+    out = config.cube_dir(("xarray_scenefilter_local" if local else "xarray_scenefilter_test") + variant, tag)
+    if local:
+        archive, ainfo = open_archive(config.archive_dir(config.tag(aoi["name"], a.archive_km)))
+        missing = sorted(set(a.months) - set(ainfo["months"]))
+        if missing or max(a.filters) > ainfo["max_scene_cloud_cover"]:
+            raise ValueError(f"archive has months {ainfo['months']} and filter {ainfo['max_scene_cloud_cover']}%; "
+                             f"missing months {missing}")
+        archive = items_over(archive, lonlat_bbox(gbox))
     bench_csv = config.path("outputs", "benchmarks", "scene_filter_test.csv")
     lab = xr.open_zarr(config.labels_path(tag))["label"].values
     water, not_built = lab == WATER, (lab != BUILT) & (lab != 255)
@@ -77,11 +96,15 @@ def main():
         for f in a.filters:
             # STAC query is "cloud cover < f": for 100 use no limit, so 100%-cloudy scenes are included too
             limit = 101 if f >= 100 else f
-            items = search_s2(lonlat_bbox(gbox), wf["year"], [m], limit)
+            if local:
+                items = sorted([it for it in archive if it.datetime.year == wf["year"] and it.datetime.month == m
+                                and it.properties["eo:cloud_cover"] < limit], key=lambda i: i.datetime)
+            else:
+                items = search_s2(lonlat_bbox(gbox), wf["year"], [m], limit)
             zpath = out / f"m{m:02d}_cc{f}.zarr"
             for attempt in range(1, a.retries + 2):          # 1 try + up to `retries` retries
                 try:
-                    ds = build(m, f, items, gbox, wf, zpath, common)
+                    ds = build(m, f, items, gbox, wf, zpath, common, local)
                     break
                 except Exception as e:                        # already logged as "error" by stage()
                     print(f"m{m:02d} cc{f} attempt {attempt} failed: {type(e).__name__}: {str(e)[:150]}", flush=True)
@@ -91,6 +114,9 @@ def main():
 
             res = xr.open_zarr(zpath)
             cnt, b2 = res.valid_count.values, res.B02.values
+            scl = ds[wf["scl_band"]].compute()
+            valid_obs = ~scl.isin(wf["cloud_mask"]["remove_scl_classes"]) & (ds[wf["bands"][0]] > 0).compute()
+            snow_obs = int((valid_obs & (scl == 11)).sum())
             rows.append({
                 "month": m, "max_scene_cloud_cover": f, "n_items": len(items), "n_dates": int(ds.sizes["time"]),
                 "scene_cloud_pct": ";".join(f"{it.properties['eo:cloud_cover']:.0f}" for it in
@@ -99,6 +125,7 @@ def main():
                 "water_empty_pct": round(100 * float((cnt[water] == 0).mean()), 2),
                 "bright_b02_gt2000_nonbuilt_pct": round(100 * float(((b2 > 2000) & not_built).sum() / not_built.sum()), 2),
                 "median_valid_count": float(np.median(cnt)),
+                "snow_obs_pct": round(100 * snow_obs / max(1, int(valid_obs.sum())), 2),
                 "seconds_download_composite_write": sec,
                 "attempts": attempt,
             })
@@ -128,12 +155,13 @@ def main():
             n_items=("n_items", "sum"), n_dates=("n_dates", "sum"),
             no_valid_pct=("no_valid_pct", "mean"), water_empty_pct=("water_empty_pct", "mean"),
             bright_b02_gt2000_nonbuilt_pct=("bright_b02_gt2000_nonbuilt_pct", "mean"),
+            snow_obs_pct=("snow_obs_pct", "mean"),
             seconds_download_composite_write=("seconds_download_composite_write", "sum"),
             attempts=("attempts", "sum")).round(2).reset_index()
         tot["month"] = "total"
         t1 = pd.concat([t1, tot], ignore_index=True)
     mm = f"m{a.months[0]:02d}" if len(a.months) == 1 else f"m{min(a.months):02d}-m{max(a.months):02d}"
-    t1.to_csv(config.tables_dir() / f"scene_filter_test_{mm}_{tag}.csv", index=False)
+    t1.to_csv(config.tables_dir() / f"scene_filter_test_{mm}_{tag}{'_local' if local else ''}{variant}.csv", index=False)
     pd.set_option("display.width", 220)
     print(t1.drop(columns="scene_cloud_pct").to_string(index=False))
     if a.scl_water:

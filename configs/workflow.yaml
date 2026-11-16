@@ -5,10 +5,9 @@
 
 year: 2021                      # must match WorldCover 2021 v200 labels
 
-# Months used for the monthly composites (time steps of the cube).
-# TO RE-DECIDE for the new AOI (the Apr-Oct choice, D2, was made for the Moscow region and is superseded).
-# Run scripts/02_aoi_report.py + 02b_snow_report.py for the new AOI, then record the decision in docs/decisions.md.
-months: [4, 5, 6, 7, 8, 9, 10]
+# Months used for the monthly composites (time steps of the cube): March-November = 9 time steps (D19,
+# austria_tulln: snow/cloud report + composite test). Dec-Feb are not used.
+months: [3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 grid:
   crs: auto_utm                 # UTM zone of the AOI centre, e.g. EPSG:32633 (D17); computed by edc.aoi.aoi_grid()
@@ -28,13 +27,14 @@ scl_band: SCL
 
 cloud_mask:
   # SCL classes REMOVED: 0 no data, 1 saturated/defective, 3 cloud shadow,
-  # 8 cloud medium prob., 9 cloud high prob., 10 thin cirrus
-  remove_scl_classes: [0, 1, 3, 8, 9, 10]
-  keep_snow: true               # SCL 11 (snow) is KEPT (decision, see docs/decisions.md)
+  # 8 cloud medium prob., 9 cloud high prob., 10 thin cirrus, 11 snow (D20).
+  # EVERY system must remove exactly these classes.
+  remove_scl_classes: [0, 1, 3, 8, 9, 10, 11]
+  keep_snow: false              # SCL 11 (snow) is MASKED (D20, replaces D3): in this AOI it is mostly cloud
 
 scene_filter:
   max_scene_cloud_cover: 80     # % scene cloud cover (eo:cloud_cover), pre-filter before pixel masking.
-                                # 80 came from the Moscow test (D14, superseded): re-test for the new AOI.
+                                # 80 confirmed for austria_tulln together with masking snow (D20).
                                 # Applied ONCE when the archive is filled, so all systems get the same scenes.
 
 composite:
